@@ -1,5 +1,6 @@
 # guacamole-compose
-Docker compose project with oeycloak and guacamole
+
+Docker compose project with keycloak and guacamole
 
 ## To get started with no configurations, run 
 
@@ -12,7 +13,8 @@ docker-compose up
 Requires name resolution to work, so added the following entry to `/etc/hosts`:
 
 ```
-127.0.1.1 guacamole.rfa.net keycloak.rfa.net
+source .env
+echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 ```
 
 ### Trust the certs
@@ -30,7 +32,7 @@ docker exec guacamole-compose_keycloak_1 \
   -s enabled=true \
   -s email=guacadmin@guacadmin \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -42,7 +44,7 @@ docker exec guacamole-compose_keycloak_1 \
   --username guacadmin@guacadmin \
   --new-password guacadmin \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -54,7 +56,7 @@ docker exec guacamole-compose_keycloak_1 \
   --uusername guacadmin@guacadmin \
   --rolename admin \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -69,7 +71,7 @@ docker exec guacamole-compose_keycloak_1 \
   create clients \
   --file guacamole-client.json \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -96,9 +98,9 @@ you'll need separate certs for guacamole and keycloak
 
 Then browsed to:
 
-https://guacamole.rfa.net:8443/guacamole
+https://${GUAC_HOSTNAME}:8443/guacamole
 
-https://keycloak.rfa.net:8443
+https://${KC_HOSTNAME}:8443
 
 ### To add users
 
@@ -122,7 +124,7 @@ Reference: https://guacamole.apache.org/doc/gug/openid-auth.html
 
 To add users to postgres, add them through the guacamole application.
 
-https://guacamole.rfa.net:8443/guacamole
+https://${GUAC_HOSTNAME}:8443/guacamole
 
 username: *guacadmin@guacadmin*
 
@@ -159,9 +161,9 @@ connection must be checked for the user to create a connection.
 
 #### Adding user to Keycloak
 
-https://keycloak.rfa.net:8443
+https://${KC_HOSTNAME}:8443
 
-Administration Console
+Administration Consolehttps://maas.io/docs
 
 ---
 

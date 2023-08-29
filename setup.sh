@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+source .env 
+
 echo "checking for patch"
 patch -v
 echo "checking for wget"
@@ -16,14 +18,17 @@ mkdir -p {data/guacamole,data/keycloak,init,openid}
 
 cd openid
 
-wget -nc https://mirrors.ocf.berkeley.edu/apache/guacamole/1.1.0/binary/guacamole-auth-openid-1.1.0.tar.gz
-tar -xf guacamole-auth-openid-1.1.0.tar.gz
-mv guacamole-auth-openid-1.1.0/* .
+echo " Downloading Guacamole OpenID auth plugin"
+wget https://dlcdn.apache.org/guacamole/1.5.3/binary/guacamole-auth-sso-1.5.3.tar.gz
+tar -xvzf guacamole-auth-sso-1.5.3.tar.gz
+mv guacamole-auth-sso-1.5.3/openid/* .
+rm guacamole-auth-sso-1.5.3.tar.gz guacamole-auth-sso-1.5.3 -rf
 cd ..
 
+echo " Generating guacamole SQL DB init script"
 # create the database initialization script for the guacamole database
 docker run --rm \
-  docker.io/guacamole/guacamole:1.1.0 \
+  docker.io/guacamole/guacamole:1.5.3 \
     /opt/guacamole/bin/initdb.sh --postgres > init/initdb.sql.orig
 
 cp init/initdb.sql.orig init/initdb.sql
@@ -55,7 +60,7 @@ openssl req \
   -x509 \
   -days 365 \
   -out init/guacamole.crt \
-  -subj "/C=US/ST=CA/L=Anytown/O=Ridgecrest First Aid/OU=AED Instructors/CN=guacamole.rfa.net"
+  -subj "/C=US/ST=CA/L=Anytown/O=Ridgecrest First Aid/OU=AED Instructors/CN=${GUAC_HOSTNAME}"
 
 # values pulled from server.xml within the image, and errors from the docker log
 keytool -genkey \
@@ -64,7 +69,7 @@ keytool -genkey \
   -keystore init/application.keystore \
   -keysize 2048 \
   -storepass password \
-  -dname "cn=keycloak.rfa.net, ou=AED Instructors, o=Ridgecrest, c=US" \
+  -dname "cn=${KC_HOSTNAME}, ou=AED Instructors, o=Ridgecrest, c=US" \
   -keypass password \
   -trustcacerts \
   -validity 365
@@ -82,7 +87,7 @@ keytool -exportcert \
 # as we don't link to postgres
 touch init/cacerts
 timeout 10 docker run --rm --name keycloak-cacerts \
-  docker.io/jboss/keycloak:latest &
+  docker.io/keycloak/keycloak:22.0.1 &
 sleep 1s
 docker cp keycloak-cacerts:/etc/pki/ca-trust/extracted/java/cacerts init/cacerts
 

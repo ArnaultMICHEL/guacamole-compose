@@ -9,7 +9,7 @@
   -s enabled=true \
   -s email=guacadmin@guacadmin \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -20,7 +20,7 @@
   --username guacadmin@guacadmin \
   --new-password guacadmin \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -31,7 +31,7 @@
   --uusername guacadmin@guacadmin \
   --rolename admin \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
@@ -41,7 +41,7 @@
   create clients \
   --file guacamole-client.json \
   -r master \
-  --server https://keycloak.rfa.net:8443/auth \
+  --server https://${KC_HOSTNAME}:8443/auth \
   --realm master \
   --user admin \
   --password admin
