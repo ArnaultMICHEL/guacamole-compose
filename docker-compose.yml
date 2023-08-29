@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3'
 
 # networks
 # create a network 'guacamole_net' in mode 'bridged'
@@ -8,7 +8,6 @@ networks:
   keycloak_net:
     driver: bridge
   haproxy_net:
-    name: haproxy_net
     driver: bridge
 
 services:
@@ -59,23 +58,23 @@ services:
       - ./init/server.xml:/usr/local/tomcat/conf/server.xml:ro
       - ./init/cacerts:/docker-java-home/jre/lib/security/cacerts:ro
     environment:
-      POSTGRES_HOSTNAME: postgres
-      POSTGRES_DATABASE: guacamole_db
-      POSTGRES_USER: '${POSTGRES_USER}'
-      POSTGRES_PASSWORD: '${GUAC_POSTGRES_PASSWORD}'
-      POSTGRESQL_AUTO_CREATE_ACCOUNTS: true
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_USER: '${GUAC_POSTGRES_USER}'
+      POSTGRESQL_PASSWORD: '${GUAC_POSTGRES_PASSWORD}'
+      POSTGRESQL_AUTO_CREATE_ACCOUNTS: 'true'
       GUACD_HOSTNAME: guacd
       GUACD_PORT_4822_TCP_ADDR: guacd
       GUACD_PORT_4822_TCP_PORT: 4822
       GUACAMOLE_HOSTNAME: https://guacamole:8443/guacamole/#
-      # https://${KC_HOSTNAME}:8443/auth/realms/master/.well-known/openid-configuration
+      # https://${KC_HOSTNAME}:8443/realms/master/.well-known/openid-configuration
       # https://guacamole.apache.org/doc/gug/openid-auth.html
-      OPENID_AUTHORIZATION_ENDPOINT: https://${KC_HOSTNAME}:8443/auth/realms/master/protocol/openid-connect/auth
-      OPENID_JWKS_ENDPOINT: https://${KC_HOSTNAME}:8443/auth/realms/master/protocol/openid-connect/certs
-      OPENID_ISSUER: https://${KC_HOSTNAME}:8443/auth/realms/master
+      OPENID_AUTHORIZATION_ENDPOINT: https://${KC_HOSTNAME}/realms/master/protocol/openid-connect/auth
+      OPENID_JWKS_ENDPOINT: https://${KC_HOSTNAME}/realms/master/protocol/openid-connect/certs
+      OPENID_ISSUER: https://${KC_HOSTNAME}/realms/master
       OPENID_CLIENT_ID: guacamole
-      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}:8443/guacamole/#/settings/sessions
-      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}:8443/guacamole
+      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole/#/settings/sessions
+      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole
       OPENID_CLAIM_TYPE: sub
       # OPENID_CLAIM_TYPE: preferred_username
       OPENID_SCOPE: openid profile
@@ -95,48 +94,51 @@ services:
     restart: always
     ports:
       - "443:8443"
-      - "80:80"
-      - "8404:8404"
     volumes:
         - ./config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     networks:
       - haproxy_net
     environment:
-      ENDPOINT: '${ENDPOINT}'
+      HA_PROXY_ENDPOINT: '${HA_PROXY_ENDPOINT}'
     depends_on:
       - guacamole
       - keycloak
 
   keycloakpostgres:
+    container_name: keycloak_database
     image: docker.io/postgres:14.9
     restart: always
+    hostname: keycloakpostgres
     volumes:
-      - ./data/keycloak:/var/lib/postgresql/data
+      - ./data/keycloak:/var/lib/postgresql/data:rw
     environment:
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-      POSTGRES_DB: keycloak
+      POSTGRES_USER: '${KC_POSTGRES_USER}'
+      POSTGRES_PASSWORD: '${KC_POSTGRES_PASSWORD}'
+      POSTGRES_DB: 'keycloak_db'
     networks:
       keycloak_net:
 
   keycloak:
-    image: docker.io/keycloak/keycloak:22.0.1
+    container_name: keycloak_frontend
+    image: 'docker.io/keycloak/keycloak:${KEYCLOAK_VERSION}'
     restart: always
     depends_on:
       - keycloakpostgres
     env_file:
       - '.kc.env'
     environment:
-      KC_DB_PASSWORD: '${KC_POSTGRES_PASSWORD}'
       KC_DB_USERNAME: '${KC_POSTGRES_USER}'
+      KC_DB_PASSWORD: '${KC_POSTGRES_PASSWORD}'
       #https://www.keycloak.org/server/hostname
       KC_HOSTNAME: '${KC_HOSTNAME}'
+      KC_HOSTNAME_PORT: '443'
       KEYCLOAK_ADMIN: '${KEYCLOAK_ADMIN_USER}'
       KEYCLOAK_ADMIN_PASSWORD: '${KEYCLOAK_ADMIN_PASSWORD}'
-    command: 'start --auto-build'
+      KC_HTTPS_KEY_STORE_PASSWORD: '${JKS_STOREPASS}'
+    command: 'start'
     hostname: ${KC_HOSTNAME}
-    extra_hosts:
-      - 'mailer:192.168.0.5'
+    #extra_hosts:
+    #  - 'mailer:192.168.0.5'
     ports:
       - "7443:8443"
     tmpfs:
@@ -145,7 +147,7 @@ services:
       - /opt/jboss/keycloak/standalone/tmp/vfs/temp
     volumes:
       - ./init/application.keystore:/opt/jboss/keycloak/standalone/configuration/application.keystore
-      - ./init/cacerts:/usr/lib/jvm/java-11-openjdk-11.0.6.10-0.el8_1.x86_64/lib/security/cacerts
+      - ./init/cacerts:/opt/jboss/keycloak/standalone/configuration/cacerts
       - ./config/keycloak/guacamole-client.json:/guacamole-client.json
     networks:
       keycloak_net:

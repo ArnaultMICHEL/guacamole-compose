@@ -1,10 +1,9 @@
---- init/initdb.sql.orig	2020-03-29 17:47:10.732328565 -0700
-+++ init/initdb.sql	2020-03-29 19:20:02.227890869 -0700
-@@ -754,26 +754,27 @@
- --
+--- init/initdb.sql.orig	2023-08-29 11:52:39.813332504 +0200
++++ init/initdb.sql	2023-08-29 11:59:10.316858477 +0200
+@@ -755,25 +755,27 @@
  
  -- Create default user "guacadmin" with password "guacadmin"
--INSERT INTO guacamole_entity (name, type) VALUES ('guacadmin', 'USER');
+ INSERT INTO guacamole_entity (name, type) VALUES ('guacadmin', 'USER');
 -INSERT INTO guacamole_user (entity_id, password_hash, password_salt, password_date)
 +INSERT INTO guacamole_entity (name, type) VALUES ('guacadmin@guacadmin', 'USER');
 +INSERT INTO guacamole_user (entity_id, email_address, password_hash, password_salt, password_date)
@@ -37,7 +36,7 @@
  ) permissions (username, permission)
  JOIN guacamole_entity ON permissions.username = guacamole_entity.name AND guacamole_entity.type = 'USER';
  
-@@ -782,9 +783,9 @@
+@@ -782,9 +784,9 @@
  SELECT guacamole_entity.entity_id, guacamole_user.user_id, permission::guacamole_object_permission_type
  FROM (
      VALUES

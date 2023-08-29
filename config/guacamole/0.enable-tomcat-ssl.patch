@@ -1,12 +1,16 @@
---- init/server.xml.orig	2020-03-26 18:22:55.548532694 -0700
-+++ init/server.xml	2020-03-26 18:27:26.247285566 -0700
-@@ -99,18 +99,15 @@
+--- init/server.xml.orig	2023-08-29 14:14:07.765190879 +0200
++++ init/server.xml	2023-08-29 14:03:49.163981579 +0200
+@@ -104,20 +104,19 @@
           Either JSSE or OpenSSL style configuration may be used. OpenSSL style
           configuration is used below.
      -->
 -    <!--
      <Connector port="8443" protocol="org.apache.coyote.http11.Http11AprProtocol"
-                maxThreads="150" SSLEnabled="true" >
+                maxThreads="150" SSLEnabled="true"
+                maxParameterCount="1000"
++               SSLVerifyClient="optional"
++               SSLProtocol="TLSv1.2+TLSv1.3"
+                >
          <UpgradeProtocol className="org.apache.coyote.http2.Http2Protocol" />
          <SSLHostConfig>
 -            <Certificate certificateKeyFile="conf/localhost-rsa-key.pem"
@@ -20,4 +24,4 @@
 -    -->
  
      <!-- Define an AJP 1.3 Connector on port 8009 -->
-     <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+     <!--

@@ -1,6 +1,6 @@
-#!/bin/bash -x
+#!/bin/bash 
 
-source .env 
+source .secret.env 
 
 echo "checking for patch"
 patch -v
@@ -20,7 +20,7 @@ cd openid
 
 echo " Downloading Guacamole OpenID auth plugin"
 wget https://dlcdn.apache.org/guacamole/1.5.3/binary/guacamole-auth-sso-1.5.3.tar.gz
-tar -xvzf guacamole-auth-sso-1.5.3.tar.gz
+tar -xvz guacamole-auth-sso-1.5.3.tar.gz
 mv guacamole-auth-sso-1.5.3/openid/* .
 rm guacamole-auth-sso-1.5.3.tar.gz guacamole-auth-sso-1.5.3 -rf
 cd ..
@@ -29,16 +29,19 @@ echo " Generating guacamole SQL DB init script"
 # create the database initialization script for the guacamole database
 docker run --rm \
   docker.io/guacamole/guacamole:1.5.3 \
-    /opt/guacamole/bin/initdb.sh --postgres > init/initdb.sql.orig
+    /opt/guacamole/bin/initdb.sh --postgresql > init/initdb.sql.orig
 
 cp init/initdb.sql.orig init/initdb.sql
 
 patch init/initdb.sql < config/guacamole/1.add-guacadmin-email.patch
 
+
+
+echo " Activate TLS on Tomcat server"
 # get the original server.xml
 touch init/server.xml.orig
 docker run --rm --name guacamole-setup \
-  docker.io/guacamole/guacamole:1.1.0 \
+  docker.io/guacamole/guacamole:1.5.3 \
   cat /usr/local/tomcat/conf/server.xml > init/server.xml.orig
 
 # make a copy to patch
@@ -53,14 +56,15 @@ patch init/server.xml < config/guacamole/0.enable-tomcat-ssl.patch
 #   Guacamole
 #   Keycloak
 
+echo " Generate TLS Server Keys and certificates for Guacamole and Keycloak"
 openssl req \
   -newkey rsa:2048 \
   -nodes \
   -keyout init/guacamole.key \
   -x509 \
-  -days 365 \
+  -days 730 \
   -out init/guacamole.crt \
-  -subj "/C=US/ST=CA/L=Anytown/O=Ridgecrest First Aid/OU=AED Instructors/CN=${GUAC_HOSTNAME}"
+  -subj "/C=FR/O=My Company/OU=My Division/CN=${GUAC_HOSTNAME}"
 
 # values pulled from server.xml within the image, and errors from the docker log
 keytool -genkey \
@@ -68,20 +72,19 @@ keytool -genkey \
   -keyalg RSA \
   -keystore init/application.keystore \
   -keysize 2048 \
-  -storepass password \
-  -dname "cn=${KC_HOSTNAME}, ou=AED Instructors, o=Ridgecrest, c=US" \
-  -keypass password \
+  -storepass ${JKS_STOREPASS} \
+  -dname "cn=${KC_HOSTNAME}, ou=My Division, o=My Company, c=FR" \
+  -keypass ${JKS_STOREPASS} \
   -trustcacerts \
-  -validity 365
+  -validity 720
 
 # make the certificate available to guacamole
 touch init/keycloak.crt
 keytool -exportcert \
   -keystore init/application.keystore \
   -alias server \
-  -storepass password \
-  -keypass password | \
-  openssl x509 -inform der -text > init/keycloak.crt
+  -storepass ${JKS_STOREPASS} \
+  -keypass ${JKS_STOREPASS} -rfc > init/keycloak.crt
 
 # Grabbing cacerts, don't use this for standalone.xml
 # as we don't link to postgres
@@ -105,5 +108,5 @@ keytool -importcert \
   -trustcacerts -noprompt
 
 docker stop keycloak-cacerts
-docker rm keycloak-cacerts
+#docker rm keycloak-cacerts
 
