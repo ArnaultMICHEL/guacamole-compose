@@ -3,15 +3,23 @@
 source .secret.env 
 
 echo "checking for patch"
-patch -v
+[[ -x "$(command -v patch)" ]] || { echo " patch not found => installing it"; sudo dnf install patch -y; }
 echo "checking for wget"
-wget -v
-echo "checking for docker-compose"
-docker-compose -v
+[[ -x "$(command -v wget)" ]] || { echo " wget not found => installing it"; sudo dnf install wget -y; }
 echo "checking for docker"
-docker -v
+[[ -x "$(command -v docker)" ]] || {
+  echo " wget not found => installing it";
+  sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo;
+  sudo dnf install docker-ce -y;
+  sudo systemctl start docker;
+  sudo systemctl enable docker;
+}
+echo "checking for docker-compose"
+[[ -x "$(command -v docker-compose)" ]] || { echo " wget not found => installing it"; sudo dnf install docker-compose-plugin -y; }
+
 echo "checking for keytool"
-keytool -v
+[[ -x "$(command -v keytool)" ]] || { echo " keytool not found => installing openjdk"; sudo dnf install java-17-openjdk.x86_64 -y; }
+
 
 # create directories
 mkdir -p {data/guacamole,data/keycloak,init,openid} 
