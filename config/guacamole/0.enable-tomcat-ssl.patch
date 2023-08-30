@@ -1,6 +1,6 @@
---- init/server.xml.orig	2023-08-29 14:14:07.765190879 +0200
-+++ init/server.xml	2023-08-29 14:03:49.163981579 +0200
-@@ -104,20 +104,19 @@
+--- init/server.xml.orig	2023-08-29 14:14:56.229595675 +0200
++++ init/server.xml	2023-08-29 15:37:47.283556093 +0200
+@@ -104,20 +104,17 @@
           Either JSSE or OpenSSL style configuration may be used. OpenSSL style
           configuration is used below.
      -->
@@ -8,8 +8,6 @@
      <Connector port="8443" protocol="org.apache.coyote.http11.Http11AprProtocol"
                 maxThreads="150" SSLEnabled="true"
                 maxParameterCount="1000"
-+               SSLVerifyClient="optional"
-+               SSLProtocol="TLSv1.2+TLSv1.3"
                 >
          <UpgradeProtocol className="org.apache.coyote.http2.Http2Protocol" />
          <SSLHostConfig>

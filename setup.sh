@@ -1,11 +1,13 @@
 #!/bin/bash 
 
-source .secret.env 
+source .secrets.env 
 
 echo "checking for patch"
 [[ -x "$(command -v patch)" ]] || { echo " patch not found => installing it"; sudo dnf install patch -y; }
+
 echo "checking for wget"
 [[ -x "$(command -v wget)" ]] || { echo " wget not found => installing it"; sudo dnf install wget -y; }
+
 echo "checking for docker"
 [[ -x "$(command -v docker)" ]] || {
   echo " wget not found => installing it";
@@ -14,8 +16,12 @@ echo "checking for docker"
   sudo systemctl start docker;
   sudo systemctl enable docker;
 }
+
 echo "checking for docker-compose"
-[[ -x "$(command -v docker-compose)" ]] || { echo " wget not found => installing it"; sudo dnf install docker-compose-plugin -y; }
+[[ -x "$(command -v docker-compose)" ]] || {
+  echo " wget not found => installing it"; 
+  sudo dnf install docker-compose-plugin -y;
+}
 
 echo "checking for keytool"
 [[ -x "$(command -v keytool)" ]] || { echo " keytool not found => installing openjdk"; sudo dnf install java-17-openjdk.x86_64 -y; }
@@ -28,7 +34,7 @@ cd openid
 
 echo " Downloading Guacamole OpenID auth plugin"
 wget https://dlcdn.apache.org/guacamole/1.5.3/binary/guacamole-auth-sso-1.5.3.tar.gz
-tar -xvz guacamole-auth-sso-1.5.3.tar.gz
+tar xvz guacamole-auth-sso-1.5.3.tar.gz
 mv guacamole-auth-sso-1.5.3/openid/* .
 rm guacamole-auth-sso-1.5.3.tar.gz guacamole-auth-sso-1.5.3 -rf
 cd ..
@@ -42,8 +48,6 @@ docker run --rm \
 cp init/initdb.sql.orig init/initdb.sql
 
 patch init/initdb.sql < config/guacamole/1.add-guacadmin-email.patch
-
-
 
 echo " Activate TLS on Tomcat server"
 # get the original server.xml
