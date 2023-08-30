@@ -57,6 +57,7 @@ services:
       - ./init/guacamole.key:/usr/local/tomcat/conf/guacamole.key:ro
       - ./init/server.xml:/usr/local/tomcat/conf/server.xml:ro
       - ./init/cacerts:/docker-java-home/jre/lib/security/cacerts:ro
+      - ./init/cacerts:/opt/java/openjdk/jre/lib/security/cacerts
     environment:
       POSTGRESQL_HOSTNAME: postgres
       POSTGRESQL_DATABASE: guacamole_db
@@ -70,10 +71,10 @@ services:
       # https://${KC_HOSTNAME}:8443/realms/master/.well-known/openid-configuration
       # https://guacamole.apache.org/doc/gug/openid-auth.html
       OPENID_AUTHORIZATION_ENDPOINT: https://${KC_HOSTNAME}/realms/master/protocol/openid-connect/auth
-      OPENID_JWKS_ENDPOINT: https://${KC_HOSTNAME}/realms/master/protocol/openid-connect/certs
+      OPENID_JWKS_ENDPOINT: https://${KC_HOSTNAME}:8443/realms/master/protocol/openid-connect/certs
       OPENID_ISSUER: https://${KC_HOSTNAME}/realms/master
       OPENID_CLIENT_ID: guacamole
-      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole/#/settings/sessions
+      #OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole/#/settings/sessions
       OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole
       OPENID_CLAIM_TYPE: sub
       # OPENID_CLAIM_TYPE: preferred_username

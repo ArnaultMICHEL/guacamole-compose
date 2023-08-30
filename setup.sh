@@ -90,16 +90,19 @@ keytool -exportcert \
 # as we don't link to postgres
 touch init/cacerts
 timeout 10 docker run --rm --name keycloak-cacerts \
-  docker.io/keycloak/keycloak:22.0.1 &
-sleep 1s
+  docker.io/keycloak/keycloak:22.0.1 start &
+sleep 2s
 docker cp keycloak-cacerts:/etc/pki/ca-trust/extracted/java/cacerts init/cacerts
+
+chmod u+w init/cacerts
 
 keytool -importcert \
   -alias keycloak \
   -keystore init/cacerts \
   -storepass changeit \
   -file init/keycloak.crt \
-  -trustcacerts -noprompt 
+  -trustcacerts -noprompt
+
 keytool -importcert \
   -alias guacamole \
   -keystore init/cacerts \

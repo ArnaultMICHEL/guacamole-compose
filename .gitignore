@@ -3,3 +3,4 @@ init
 init.bak
 openid
 myfile.txt
+config/keycloak/keycloak-client-tools
