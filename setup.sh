@@ -12,34 +12,30 @@ echo "checking for docker"
 [[ -x "$(command -v docker)" ]] || {
   echo " wget not found => installing it";
   sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo;
-  sudo dnf install docker-ce -y;
+  sudo dnf install docker-ce docker-compose-plugin -y;
   sudo systemctl start docker;
   sudo systemctl enable docker;
-}
-
-echo "checking for docker-compose"
-[[ -x "$(command -v docker-compose)" ]] || {
-  echo " wget not found => installing it"; 
-  sudo dnf install docker-compose-plugin -y;
 }
 
 echo "checking for keytool"
 [[ -x "$(command -v keytool)" ]] || { echo " keytool not found => installing openjdk"; sudo dnf install java-17-openjdk.x86_64 -y; }
 
+echo ""
 
 # create directories
 mkdir -p {data/guacamole,data/keycloak,init,openid} 
 
-cd openid
+[[ ! -e openid/guacamole-auth-sso-openid-1.5.3.jar ]] && {
+  cd openid
+  echo -e "\ Downloading Guacamole OpenID auth plugin"
+  wget https://dlcdn.apache.org/guacamole/1.5.3/binary/guacamole-auth-sso-1.5.3.tar.gz
+  tar xvzf guacamole-auth-sso-1.5.3.tar.gz
+  mv guacamole-auth-sso-1.5.3/openid/* .
+  rm guacamole-auth-sso-1.5.3.tar.gz guacamole-auth-sso-1.5.3 -rf
+  cd ..
+}
 
-echo " Downloading Guacamole OpenID auth plugin"
-wget https://dlcdn.apache.org/guacamole/1.5.3/binary/guacamole-auth-sso-1.5.3.tar.gz
-tar xvz guacamole-auth-sso-1.5.3.tar.gz
-mv guacamole-auth-sso-1.5.3/openid/* .
-rm guacamole-auth-sso-1.5.3.tar.gz guacamole-auth-sso-1.5.3 -rf
-cd ..
-
-echo " Generating guacamole SQL DB init script"
+echo -e "\n Generating guacamole SQL DB init script"
 # create the database initialization script for the guacamole database
 docker run --rm \
   docker.io/guacamole/guacamole:1.5.3 \
@@ -49,7 +45,7 @@ cp init/initdb.sql.orig init/initdb.sql
 
 patch init/initdb.sql < config/guacamole/1.add-guacadmin-email.patch
 
-echo " Activate TLS on Tomcat server"
+echo -e "\n Activate TLS on Tomcat server"
 # get the original server.xml
 touch init/server.xml.orig
 docker run --rm --name guacamole-setup \
@@ -68,7 +64,7 @@ patch init/server.xml < config/guacamole/0.enable-tomcat-ssl.patch
 #   Guacamole
 #   Keycloak
 
-echo " Generate TLS Server Keys and certificates for Guacamole and Keycloak"
+echo -e "\n Generate TLS Server Keys and certificates for Guacamole and Keycloak"
 openssl req \
   -newkey rsa:2048 \
   -nodes \
@@ -123,5 +119,5 @@ keytool -importcert \
   -trustcacerts -noprompt
 
 docker stop keycloak-cacerts
-#docker rm keycloak-cacerts
+docker rm keycloak-cacerts
 
