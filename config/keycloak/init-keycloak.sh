@@ -43,15 +43,15 @@ kcadm.sh \
   --password  ${KEYCLOAK_ADMIN_PASSWORD}
 
 # Make guacadmin an admin
-kcadm.sh \
-  add-roles \
-  --uusername guacadmin@guacadmin \
-  --rolename admin \
-  -r master \
-  --server https://${KC_HOSTNAME}/ \
-  --realm master \
-  --user ${KEYCLOAK_ADMIN_USER} \
-  --password  ${KEYCLOAK_ADMIN_PASSWORD}
+#kcadm.sh \
+#  add-roles \
+#  --uusername guacadmin@guacadmin \
+#  --rolename admin \
+#  -r master \
+#  --server https://${KC_HOSTNAME}/ \
+#  --realm master \
+#  --user ${KEYCLOAK_ADMIN_USER} \
+#  --password  ${KEYCLOAK_ADMIN_PASSWORD}
 
 ### Add the guacamole-client
 kcadm.sh \
