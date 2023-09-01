@@ -29,7 +29,7 @@ services:
 
   guacd:
     container_name: guacamole_backend
-    image: docker.io/guacamole/guacd:1.5.3
+    image: docker.io/guacamole/guacd:${GUACAMOLE_VERSION}
     restart: always
     networks:
       - guacamole_net
@@ -41,10 +41,10 @@ services:
 
   guacamole:
     container_name: guacamole_frontend
-    image: docker.io/guacamole/guacamole:1.5.3
+    image: docker.io/guacamole/guacamole:${GUACAMOLE_VERSION}
     restart: always
-    ports:
-      - "6443:8443"
+    #ports:
+    #  - "6443:8443"
     hostname: ${GUAC_HOSTNAME}
     networks:
       guacamole_net:
@@ -52,12 +52,12 @@ services:
           - ${GUAC_HOSTNAME}
       haproxy_net:
     volumes:
-      - ./openid/guacamole-auth-openid-1.5.3.jar:/opt/guacamole/openid/guacamole-auth-openid-1.5.3.jar:ro
+      - ./openid/guacamole-auth-openid-${GUACAMOLE_VERSION}.jar:/opt/guacamole/openid/guacamole-auth-openid-${GUACAMOLE_VERSION}.jar:ro
       - ./init/guacamole.crt:/usr/local/tomcat/conf/guacamole.crt:ro
       - ./init/guacamole.key:/usr/local/tomcat/conf/guacamole.key:ro
       - ./init/server.xml:/usr/local/tomcat/conf/server.xml:ro
       - ./init/cacerts:/docker-java-home/jre/lib/security/cacerts:ro
-      - ./init/cacerts:/opt/java/openjdk/jre/lib/security/cacerts
+      - ./init/cacerts:/opt/java/openjdk/jre/lib/security/cacerts:ro
     environment:
       POSTGRESQL_HOSTNAME: postgres
       POSTGRESQL_DATABASE: guacamole_db
@@ -101,6 +101,8 @@ services:
       - haproxy_net
     environment:
       HA_PROXY_ENDPOINT: '${HA_PROXY_ENDPOINT}'
+      GUAC_HOSTNAME: '${GUAC_HOSTNAME}'
+      KC_HOSTNAME: '${KC_HOSTNAME}'
     depends_on:
       - guacamole
       - keycloak
@@ -133,24 +135,25 @@ services:
       #https://www.keycloak.org/server/hostname
       KC_HOSTNAME_URL: 'https://${KC_HOSTNAME}/'
       #KC_HOSTNAME_PORT: '443'
-      KC_HOSTNAME_ADMIN_URL: 
+      KC_HOSTNAME_ADMIN_URL:  'https://${KC_HOSTNAME}/'
       KEYCLOAK_ADMIN: '${KEYCLOAK_ADMIN_USER}'
       KEYCLOAK_ADMIN_PASSWORD: '${KEYCLOAK_ADMIN_PASSWORD}'
-      KC_HTTPS_KEY_STORE_PASSWORD: '${JKS_STOREPASS}'
     command: 'start'
     hostname: ${KC_HOSTNAME}
     #extra_hosts:
     #  - 'mailer:192.168.0.5'
-    ports:
-      - "7443:8443"
+    #ports:
+    #  - "7443:8443"
     tmpfs:
       - /run
       - /tmp
       - /opt/jboss/keycloak/standalone/tmp/vfs/temp
     volumes:
-      - ./init/application.keystore:/opt/jboss/keycloak/standalone/configuration/application.keystore
-      - ./init/cacerts:/opt/jboss/keycloak/standalone/configuration/cacerts
-      - ./config/keycloak/guacamole-client.json:/guacamole-client.json
+    #  - ./init/application.keystore:/opt/jboss/keycloak/standalone/configuration/application.keystore
+      - ./init/keycloak.crt:/etc/pki/tls/keycloak.crt
+      - ./init/keycloak.key:/etc/pki/tls/keycloak.key
+      - ./init/cacerts:/opt/keycloak/conf/cacerts
+    #  - ./config/keycloak/guacamole-client.json:/guacamole-client.json
     networks:
       keycloak_net:
       haproxy_net:
