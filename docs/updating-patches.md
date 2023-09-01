@@ -29,7 +29,7 @@
 
    ```bash
    docker run --rm \
-     docker.io/guacamole/guacamole:1.5.3 \
+     docker.io/guacamole/guacamole:${GUACAMOLE_VERSION} \
        /opt/guacamole/bin/initdb.sh --postgresql > init/initdb.sql.orig
    cp init/initdb.sql.orig init/initdb.sql
    ```
