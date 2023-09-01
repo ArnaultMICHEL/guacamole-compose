@@ -6,3 +6,6 @@ myfile.txt
 config/keycloak/keycloak-client-tools
 myCompanyCA.pem
 .env
+config/keycloak/guacamole-realm-config/.terraform*
+config/keycloak/guacamole-realm-config/terraform.tfstate*
+

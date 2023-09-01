@@ -2,6 +2,48 @@
 
 Docker compose project with keycloak and guacamole
 
+## Configuration file
+
+Create `.env` file in project root directory, and set you own env var :
+
+> not needed for a POC
+
+```bash
+#set your custom FQDN for guacamole service
+GUAC_HOSTNAME=guacamole.mydomain
+GUAC_POSTGRES_PASSWORD=**strong-random-password**
+
+KEYCLOAK_VERSION=22.0.1
+GUACAMOLE_VERSION=1.5.3
+
+KEYCLOAK_ADMIN_USER=kc-admin
+KEYCLOAK_ADMIN_PASSWORD=**strong-random-password**
+
+#set your custom FQDN for keycloak authentication service
+KC_HOSTNAME=keycloak.mydomain
+KC_POSTGRES_PASSWORD=**strong-random-password**
+
+# generate free TLS server certificate if the service is exposed on Internet
+TLS_USE_LETS_ENCRYPT_CERTS=true
+ACME_ACCOUNT_EMAIL=arnault.michel.external@banque-france.fr
+
+HA_PROXY_ENDPOINT=guacamole.poc.eclair.cloud
+```
+
+## TLS server certificates
+
+**Please note:**  haproxy sni requires *uniq* certs for *each* backend so
+you'll need separate certs for guacamole and keycloak
+
+You have 3 options :
+
+- **generate self signed server certificates** : fast but dirty
+
+- **use free server certificates** if you have create DNS records for  GUAC_HOSTNAME and KC_HOSTNAME
+
+- **generate server certificates** with your internal ca
+
+
 ## To get started with no configurations, run 
 
 ```
@@ -10,10 +52,10 @@ Docker compose project with keycloak and guacamole
 docker-compose up
 ```
 
-Requires name resolution to work, so added the following entry to `/etc/hosts`:
+> Requires name resolution to work, so added the following entry to `/etc/hosts` if you didn't register DNS entries:
 
 ```
-source .env
+source .secret.env
 echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 ```
 
@@ -21,78 +63,25 @@ echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 
 Please add init/guacamole.crt and init/keycloak.crt to your trusted certificates.
 
-### Create the guacadmin user in keycloak
+### Configure keycloak : Create the guacadmin user and guacamole  
 
-```
-# Add the guacadmin user to keycloak with an email
-docker exec guacamole-compose_keycloak_1 \
-  /opt/jboss/keycloak/bin/kcadm.sh \
-  create users \
-  -s username=guacadmin@guacadmin \
-  -s enabled=true \
-  -s email=guacadmin@guacadmin \
-  -r master \
-  --server https://${KC_HOSTNAME}:8443/auth \
-  --realm master \
-  --user admin \
-  --password admin
+```bash
 
-# Set the password
-docker exec guacamole-compose_keycloak_1 \
-  /opt/jboss/keycloak/bin/kcadm.sh \
-  set-password \
-  --username guacadmin@guacadmin \
-  --new-password guacadmin \
-  -r master \
-  --server https://${KC_HOSTNAME}:8443/auth \
-  --realm master \
-  --user admin \
-  --password admin
+cd config/keycloak
 
-# Make guacadmin an admin
-docker exec guacamole-compose_keycloak_1 \
-  /opt/jboss/keycloak/bin/kcadm.sh \
-  add-roles \
-  --uusername guacadmin@guacadmin \
-  --rolename admin \
-  -r master \
-  --server https://${KC_HOSTNAME}:8443/auth \
-  --realm master \
-  --user admin \
-  --password admin
-```
-### Add the guacamole-client
-
-config/keycloak/guacamole-client.json
-
-```
-docker exec guacamole-compose_keycloak_1 \
-  /opt/jboss/keycloak/bin/kcadm.sh \
-  create clients \
-  --file guacamole-client.json \
-  -r master \
-  --server https://${KC_HOSTNAME}:8443/auth \
-  --realm master \
-  --user admin \
-  --password admin
+./init-keycloak.sh
 ```
 
-### TODO: add "read-only" role for keycloak
+### TODO: manage 
 
-In current configuration all qery and read-roles.
 
-### TODO: make "read-only" role a default role in keycloak
 
-## To customize:
+## TODO
 
-Find all instances of rfa.net, and replace them to you're liking
+ - [ ] use a dedicated keycloak realm for guacamole
+ - [ ] add a dedicated client scope to transfer client roles in a OIDC CLAIM named [`groups`](https://guacamole.apache.org/doc/gug/openid-auth.html#configuring-guacamole-for-single-sign-on-with-openid-connect) 
+ - [ ] set scripts to manage users (on keycloak), connexions and groups
 
-```
-grep -R rfa.net | grep -v Binary
-```
-
-**Please note:**  haproxy sni requires *uniq* certs for *each* backend so
-you'll need separate certs for guacamole and keycloak
 
 ## To use
 
