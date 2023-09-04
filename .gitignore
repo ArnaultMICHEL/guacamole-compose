@@ -3,7 +3,7 @@ init
 init.bak
 openid
 myfile.txt
-config/keycloak/keycloak-client-tools
+tools
 myCompanyCA.pem
 .env
 config/keycloak/guacamole-realm-config/.terraform*
