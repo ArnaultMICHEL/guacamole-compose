@@ -23,7 +23,7 @@ echo "checking for keytool"
 echo ""
 
 # create directories
-mkdir -p {data/guacamole,data/keycloak,init,openid} 
+mkdir -p {data/guacamole,data/keycloak,init,openid,tools} 
 
 [[ ! -e openid/guacamole-auth-sso-openid-${GUACAMOLE_VERSION}.jar ]] && {
   cd openid
