@@ -38,6 +38,8 @@ services:
     volumes:
       - ./drive:/drive:rw
       - ./record:/record:rw
+    #deploy:
+    #  replicas: 2
 
   guacamole:
     container_name: guacamole_frontend

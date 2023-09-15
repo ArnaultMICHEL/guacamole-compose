@@ -12,6 +12,7 @@ source $(dirname $0)/../.shared_cli_functions.sh
 NONCE=$(openssl rand -base64 16 | tr -d '=')
 
 # Keycloak authentication
+echo "Keycloak authentication (direct grant)"
 KC_TOKENS=$(curl --silent -X POST "https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}/protocol/openid-connect/token" \
   --insecure \
   -d "username=${GUACAMOLE_ADMIN_USER}" \
@@ -34,11 +35,11 @@ echo ${ID_TOKEN} | jq -R 'split(".") | .[0],.[1] | @base64d | fromjson'
 
 
 # Fails Here : id token doesn't have nonce claim embedded 
-
+echo "authentication propagation to giuacamole with id_token"
 curl -X POST "https://${GUAC_HOSTNAME}/guacamole/api/tokens" \
      --insecure --silent\
      --header "Content-Type: application/x-www-form-urlencoded" \
-     -d "id_token=${ID_TOKEN}" \
+     -d "id_token=${ID_TOKEN}" 
 
 # direct authentication [ with guacadmin local account ] is not working : ()
 

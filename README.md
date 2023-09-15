@@ -76,12 +76,13 @@ cd config/keycloak
 
 
 
-## TODO
+## New Features 
 
- - [ ] use a dedicated keycloak realm for guacamole
- - [ ] add a dedicated client scope to transfer client roles in a OIDC CLAIM named [`groups`](https://guacamole.apache.org/doc/gug/openid-auth.html#configuring-guacamole-for-single-sign-on-with-openid-connect) 
- - [ ] set scripts to manage users (on keycloak), connexions and groups
-
+ - [x] use latest (@ 4 Sept 2023) version of guacamole and keycloak
+ - [x] use a dedicated keycloak realm for guacamole
+ - [x] add a dedicated client scope to transfer client roles in a OIDC CLAIM named [`groups`](https://guacamole.apache.org/doc/gug/openid-auth.html#configuring-guacamole-for-single-sign-on-with-openid-connect) 
+ - [x] set scripts to manage users (on keycloak), connexions and groups
+ - [x] configure guacamole admin user
 
 ## To use
 
@@ -225,6 +226,14 @@ Reference: https://jasoncoltrin.com/2017/10/04/setup-guacamole-remote-desktop-ga
 
 https://guacamole.apache.org/doc/gug/using-guacamole.html
 
+## Tips
+
+connect to guacamole postgresql : 
+
+```bash
+source .secrets.env
+docker exec -it guacamole_database psql -U ${GUAC_POSTGRES_USER} -w  guacamole_db
+```
 ## To uninstall
 
 ```
