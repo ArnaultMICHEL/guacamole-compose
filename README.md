@@ -2,9 +2,11 @@
 
 Docker compose project with guacamole VDI services, relying on Keycloak for authentication and user's roles
 
-Ready in 5 minutes :)
+Ready in 15 minutes, with MFA available in option :)
 
 ## Configuration files
+
+### Generate `.env` file with your secrets
 
 Create `.env` file in project root directory, and edit it with you own needs :
 
@@ -13,32 +15,36 @@ source .secrets.env
 vi .env
 ```
 
-### TLS server certificates
+### TLS X.509 server certificates
 
 > **Please note:**  haproxy sni requires *uniq* certs for *each* backend so you'll need separate X.509 server certificates for guacamole and keycloak
 
 You have 3 options :
 
 - **generate self signed server certificates** : fast but dirty (on a security point of view)
-  - use `TLS_LETS_ENCRYPT=false`
-  - Please add init/guacamole.crt and init/keycloak.crt to your trusted certificates.
+  - set `TLS_LETS_ENCRYPT=false` in `.env` file
+  - Please add init/guacamole.crt and init/keycloak.crt to your browser's trusted certificates.
 
-- **use free server certificates** : you need public DNS records for GUAC_HOSTNAME and KC_HOSTNAME
-  - use `TLS_LETS_ENCRYPT=true`
+- **use free server certificates** : you need a public IP linked to DNS A records on ${GUAC_HOSTNAME} and ${KC_HOSTNAME}
+  - set `TLS_LETS_ENCRYPT=true` in `.env` file
 
 - **generate server certificates** with your internal ca
   - use `TLS_LETS_ENCRYPT=false`
   - provide 4 files :
-    - guacamole.crt
-    - guacamole.key
-    - keycloak.crt
-    - keycloak.key
+    - init/guacamole.crt
+    - init/guacamole.key
+    - init/keycloak.crt
+    - init/keycloak.key
 
-### DNS entries (or local POC settings)
+### TLS X.509 client authentication
+
+Add your own CA that issue end user authentication certificates to `myCompanyCA.pem` file, in PEM format (base64 encoded) 
+
+### DNS entries
 
 As it is a web service, it requires name resolution to work : register DNS entries for keycloak or guacamole.
 
-> add the following entry to `/etc/hosts` if you didn't register DNS entries :
+> for a local POC, add the following entry to `/etc/hosts` if you didn't register DNS entries :
 
 ```bash
 source .secret.env
@@ -47,7 +53,7 @@ echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 
 ### finalize the configuration
 
-the setup.sh script will configure the database and cryptographic keys 
+The `setup.sh` script will configure the databases and cryptographic keys 
 
 ```bash
 ./setup.sh
@@ -63,7 +69,7 @@ docker compose up -d
 
 This will :
 1. create a new realm
-2. create the guacamole client role for passing RBAC roles to guacamole 
+2. create the guacamole client role for passing RBAC client roles to guacamole 
 3. create the guacadmin user and password on Keycloak  
 
 ```bash
@@ -79,6 +85,8 @@ cd config/guacamole
 ./1.manage-guacamole-config.sh
 ```
 
+> you can manage the configuration with terraform
+
 ## Using the service
 
 Then open in your favorite browser :
@@ -89,13 +97,24 @@ Then open in your favorite browser :
 - https://${KC_HOSTNAME}:8443/admin/
   - authenticate with KEYCLOAK_ADMIN_USER + KEYCLOAK_ADMIN_PASSWORD from `.env` file
 
-> End Users **MUST** read the end users documentation : https://guacamole.apache.org/doc/gug/using-guacamole.html
+> End users **MUST** read the documentation before using the service : https://guacamole.apache.org/doc/gug/using-guacamole.html
 
 ## Service administration 
 
-In the following use case, we will add a new connection dedicated to a new user
+There is 3 ways to manage users, roles and connections :
+1. using terraform : i encourage it as it will help to manage the lifecycle
+2. using CLI Scripts located in `manage` directory
+3. using the admin web
 
-## Adding Connections to Guacamole
+### Activate MFA with X.509 client certificate
+
+in Keycloak admin GUI, simply change Browser flow to X509Broser as default :
+
+TODO : add a screenchost
+
+> with terraform, simply switch comments @ line 46/47 in `config\keycloak\guacamole-realm-config\main.tf`
+
+### Adding Connections to Guacamole
 
 ---
 
@@ -137,6 +156,22 @@ Reference: https://jasoncoltrin.com/2017/10/04/setup-guacamole-remote-desktop-ga
 
 **CLICK SAVE **
 ---
+
+
+### Adding User group to Guacamole (for RBAC)
+
+---
+
+**Upper right corner, username, settings**
+
+![Upper right corner, username, settings](docs/images/0-guacamole-settings.png "Upper right corner, username, settings")
+
+---
+
+**Middle top, Groups, left, new group**
+
+TODO : add a screenshot
+
 
 ### Adding guacamole client roles to Keycloak
 
@@ -185,6 +220,8 @@ docker-compose down
  - [x] add CLI scripts to manage keycloak users and roles
  - [x] configure guacamole admin user
  - [ ] manage guacamole groups and connections with terraform 
+ - [ ] add CLI scripts to manage manage guacamole groups and connections
+   - ask for a token after a manual authentication, then call rest API's with curl 
 
 ## Reference:
 

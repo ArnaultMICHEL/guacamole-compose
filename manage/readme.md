@@ -7,6 +7,8 @@ Unfortunately, I was not able to pass the authentication :
 - Guacamole OpenID authenticator is checking a nonce claim in id_token
 - Keycloack is not setting this claim in the id_token with direct grant (CLI) login
 
+ - [ ] TODO : ask for a token after a manual authentication, then call rest API's with curl 
+
 # Keycloak CLI scripts
 
 ## `keycloak-add-user.sh`

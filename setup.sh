@@ -103,7 +103,7 @@ then
         --net=host \
         neilpang/acme.sh  --register-account -m ${ACME_ACCOUNT_EMAIL}
   
-  #issue a 2 TLS server certificate (HA Proxy needs two different certificates for LB)
+  #issue 2 self signed server certificate (HA Proxy needs two different certificates for LB) if certificate files does not exists
   [[ ! -e init/x509/${GUAC_HOSTNAME}_ecc/${GUAC_HOSTNAME}.cer ]] && {
     echo -e "\n Generating a new TLS server certificate"
     docker run --rm  -it  \
@@ -134,27 +134,31 @@ then
     -trustcacerts -noprompt
 
 else
-  echo " Generating self signed certificates"
-  echo -e "\n Generate TLS Server Keys and certificates for Guacamole and Keycloak"
-  openssl req \
-    -newkey rsa:2048 \
-    -nodes \
-    -keyout init/guacamole.key \
-    -x509 \
-    -days 730 \
-    -out init/guacamole.crt \
-    -subj "/C=FR/O=My Company/OU=My Division/CN=${GUAC_HOSTNAME}"
+  [[ ! -e init/guacamole.key ]] && {
+    echo -e "\n Generate TLS Server Keys and certificates for Guacamole"
+    openssl req \
+      -newkey rsa:2048 \
+      -nodes \
+      -keyout init/guacamole.key \
+      -x509 \
+      -days 730 \
+      -out init/guacamole.crt \
+      -subj "/C=FR/O=My Company/OU=My Division/CN=${GUAC_HOSTNAME}"
+  }
 
-  # values pulled from server.xml within the image, and errors from the docker log
-  openssl req \
-    -newkey rsa:2048 \
-    -nodes \
-    -keyout init/keycloak.key \
-    -x509 \
-    -days 730 \
-    -out init/keycloak.crt \
-    -subj "/C=FR/O=My Company/OU=My Division/CN=${KC_HOSTNAME}"
 
+  [[ ! -e init/keycloak.key ]] && {
+    echo -e "\n Generate TLS Server Keys and certificates for Keycloak"
+    # values pulled from server.xml within the image, and errors from the docker log
+    openssl req \
+      -newkey rsa:2048 \
+      -nodes \
+      -keyout init/keycloak.key \
+      -x509 \
+      -days 730 \
+      -out init/keycloak.crt \
+      -subj "/C=FR/O=My Company/OU=My Division/CN=${KC_HOSTNAME}"
+  }
 
   #adding self signed certificates to truststore
   chmod u+w init/cacerts
@@ -175,7 +179,7 @@ else
 
 fi
 
-echo -e "\n Modifying HAProxy with FQDN"
+echo -e "\n Modifying HAProxy configuration file with FQDN"
 sed -i -e "s|use_backend bk_guacamole.*|use_backend bk_guacamole if { req_ssl_sni -i ${GUAC_HOSTNAME} }|g"   \
        -e "s|use_backend bk_keycloak .*|use_backend bk_keycloak  if { req_ssl_sni -i ${KC_HOSTNAME} }|g" \
     config/haproxy/haproxy.cfg
