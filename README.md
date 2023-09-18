@@ -1,185 +1,101 @@
 # guacamole-compose
 
-Docker compose project with keycloak and guacamole
+Docker compose project with guacamole VDI services, relying on Keycloak for authentication and user's roles
 
-## Configuration file
+Ready in 5 minutes :)
 
-Create `.env` file in project root directory, and set you own env var :
+## Configuration files
 
-> not needed for a POC
+Create `.env` file in project root directory, and edit it with you own needs :
 
 ```bash
-#set your custom FQDN for guacamole service
-GUAC_HOSTNAME=guacamole.mydomain
-GUAC_POSTGRES_PASSWORD=**strong-random-password**
-
-KEYCLOAK_VERSION=22.0.1
-GUACAMOLE_VERSION=1.5.3
-
-KEYCLOAK_ADMIN_USER=kc-admin
-KEYCLOAK_ADMIN_PASSWORD=**strong-random-password**
-
-#set your custom FQDN for keycloak authentication service
-KC_HOSTNAME=keycloak.mydomain
-KC_POSTGRES_PASSWORD=**strong-random-password**
-
-# generate free TLS server certificate if the service is exposed on Internet
-TLS_USE_LETS_ENCRYPT_CERTS=true
-ACME_ACCOUNT_EMAIL=arnault.michel.external@banque-france.fr
-
-HA_PROXY_ENDPOINT=guacamole.poc.eclair.cloud
+source .secrets.env
+vi .env
 ```
 
-## TLS server certificates
+### TLS server certificates
 
-**Please note:**  haproxy sni requires *uniq* certs for *each* backend so
-you'll need separate certs for guacamole and keycloak
+> **Please note:**  haproxy sni requires *uniq* certs for *each* backend so you'll need separate X.509 server certificates for guacamole and keycloak
 
 You have 3 options :
 
-- **generate self signed server certificates** : fast but dirty
+- **generate self signed server certificates** : fast but dirty (on a security point of view)
+  - use `TLS_LETS_ENCRYPT=false`
+  - Please add init/guacamole.crt and init/keycloak.crt to your trusted certificates.
 
-- **use free server certificates** if you have create DNS records for  GUAC_HOSTNAME and KC_HOSTNAME
+- **use free server certificates** : you need public DNS records for GUAC_HOSTNAME and KC_HOSTNAME
+  - use `TLS_LETS_ENCRYPT=true`
 
 - **generate server certificates** with your internal ca
+  - use `TLS_LETS_ENCRYPT=false`
+  - provide 4 files :
+    - guacamole.crt
+    - guacamole.key
+    - keycloak.crt
+    - keycloak.key
 
+### DNS entries (or local POC settings)
 
-## To get started with no configurations, run 
+As it is a web service, it requires name resolution to work : register DNS entries for keycloak or guacamole.
 
-```
-./setup.sh
+> add the following entry to `/etc/hosts` if you didn't register DNS entries :
 
-docker-compose up
-```
-
-> Requires name resolution to work, so added the following entry to `/etc/hosts` if you didn't register DNS entries:
-
-```
+```bash
 source .secret.env
 echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 ```
 
-### Trust the certs
+### finalize the configuration
 
-Please add init/guacamole.crt and init/keycloak.crt to your trusted certificates.
-
-### Configure keycloak : Create the guacadmin user and guacamole  
+the setup.sh script will configure the database and cryptographic keys 
 
 ```bash
+./setup.sh
+```
 
+## Start the services
+
+```bash
+docker compose up -d
+```
+
+### Configure keycloak
+
+This will :
+1. create a new realm
+2. create the guacamole client role for passing RBAC roles to guacamole 
+3. create the guacadmin user and password on Keycloak  
+
+```bash
 cd config/keycloak
-
-./init-keycloak.sh
+./1.init-keycloak-realm.sh
+./2.init-keycloak-create-guacamole-admin-user.sh
 ```
 
-### TODO: manage 
+### Configure guacamole
 
-
-
-## New Features 
-
- - [x] use latest (@ 4 Sept 2023) version of guacamole and keycloak
- - [x] use a dedicated keycloak realm for guacamole
- - [x] add a dedicated client scope to transfer client roles in a OIDC CLAIM named [`groups`](https://guacamole.apache.org/doc/gug/openid-auth.html#configuring-guacamole-for-single-sign-on-with-openid-connect) 
- - [x] set scripts to manage users (on keycloak), connexions and groups
- - [x] configure guacamole admin user
-
-## To use
-
-Then browsed to:
-
-https://${GUAC_HOSTNAME}:8443/guacamole
-
-https://${KC_HOSTNAME}:8443
-
-### To add users
-
----
-
-Guacamole uses keycloak for identity, and uses postgres for authorization.
-
-```
-Guacamole's OpenID Connect ... removing the need for users to log into Guacamole
-directly. This module must be layered on top of ... that provide connection
-information ... database authentication ....
+```bash
+cd config/guacamole
+./1.manage-guacamole-config.sh
 ```
 
-Because of this, ***users have to be added to both keycloak and postgres.***
+## Using the service
 
-Reference: https://guacamole.apache.org/doc/gug/openid-auth.html
+Then open in your favorite browser :
 
----
+- https://${GUAC_HOSTNAME}:8443/guacamole
+  - authenticate with guacadmin@guacadmin + guacAdmin@guacAdmin
+  - you will be prompted to change the password on first login : please store it in your favorite safe (i personally use [keepassXC](https://keepassxc.org/))
+- https://${KC_HOSTNAME}:8443/admin/
+  - authenticate with KEYCLOAK_ADMIN_USER + KEYCLOAK_ADMIN_PASSWORD from `.env` file
 
-#### Adding a user to Postgres
+> End Users **MUST** read the end users documentation : https://guacamole.apache.org/doc/gug/using-guacamole.html
 
-To add users to postgres, add them through the guacamole application.
+## Service administration 
 
-https://${GUAC_HOSTNAME}:8443/guacamole
+In the following use case, we will add a new connection dedicated to a new user
 
-username: *guacadmin@guacadmin*
-
-password: *guacadmin*
-
----
-
-**Upper right corner, username, settings**
-
-![Upper right corner, username, settings](docs/images/0-guacamole-settings.png "Upper right corner, username, settings")
-
----
-
-**Middle top, users, left middle, new user**
-
-![Middle top, users, left middle, new user](docs/images/1-add-users.png "Middle top, users, left middle, new user")
-
----
-
-**Make sure the username is in email format, make appropriate selections**
-
-![Make sure the username is in email format, make appropriate selections](docs/images/2-userprofile-a.png "Make sure the username is in email format, make appropriate selections")
-
----
-
-**Scroll down, continuing to make appropriate selections, then click save**
-
-![Scroll down, continuing to make appropriate selections, then click save](docs/images/3-userprofile-b.png "Scroll down, continuing to make appropriate selections, then click save")
-
-***NOTE***: if a connection is under a subgroup, both the subgroup and
-connection must be checked for the user to create a connection.
-
----
-
-#### Adding user to Keycloak
-
-https://${KC_HOSTNAME}:8443
-
-Administration Consolehttps://maas.io/docs
-
----
-
-**Scroll down, click users, view all users, add user**
-
-![Scroll down, click users, view all users, add user](docs/images/4-add-users-keycloak.png "Scroll down, click users, view all users, add user")
-
----
-
-**Make the keycloak user's email match the username and email of guacamole user**
-
-![Make the keycloak user's email match the username and email of guacamole user](docs/images/5-userprofilea-keycloak.png "Make the keycloak user's email match the username and email guacamole user")
-
-***NOTE***: The email of the keycloak user must match the username and email of the guacamole user.
-
----
-
-**Set the password**
-
-![Set the password](docs/images/6-set-password-keycloak.png "Set the password")
-
-*Why doesn't keycloak let you set the password when you create the user ?!?*
-
----
-
-## Adding Connections
+## Adding Connections to Guacamole
 
 ---
 
@@ -222,28 +138,57 @@ Reference: https://jasoncoltrin.com/2017/10/04/setup-guacamole-remote-desktop-ga
 **CLICK SAVE **
 ---
 
-## Where to send users when you want to tell them RTFM
+### Adding guacamole client roles to Keycloak
 
-https://guacamole.apache.org/doc/gug/using-guacamole.html
+```bash
+cd manage
+./keycloak-add-gucamole-role.sh guacamoleUserGroupName "descirption of the role"
+```
 
-## Tips
+> the keycloak client role *guacamoleUserGroupName* must exactly match a guacamole user group
 
-connect to guacamole postgresql : 
+### Adding users and roles to Keycloak
+
+```bash
+cd manage
+./keycloak-add-user.sh username email@fqdn
+./keycloak-add-gucamole-role.sh
+```
+
+You will be prompted to select a role to the user
+
+> if you enable MFA with X.509 certificates, the email should match the SAN extention
+
+
+
+## Tips & tricks
+
+### connecting to guacamole postgresql database
 
 ```bash
 source .secrets.env
 docker exec -it guacamole_database psql -U ${GUAC_POSTGRES_USER} -w  guacamole_db
 ```
-## To uninstall
+
+## Uninstall
 
 ```
 docker-compose down
 ./teardown.sh
 ```
 
+## Features (added by Arnault MICHEL)
+
+ - [x] use latest (@ 4 Sept 2023) versions of guacamole and keycloak software
+ - [x] use a dedicated keycloak realm for guacamole (master realm should only be used for **admin purpose only**)
+ - [x] add a dedicated client scope to transfer client roles in a OIDC CLAIM named [`groups`](https://guacamole.apache.org/doc/gug/openid-auth.html#configuring-guacamole-for-single-sign-on-with-openid-connect) 
+ - [x] add CLI scripts to manage keycloak users and roles
+ - [x] configure guacamole admin user
+ - [ ] manage guacamole groups and connections with terraform 
+
 ## Reference:
 
   - https://github.com/airaketa/guacamole-docker-compose/tree/5aac1dccbd7b89b54330155270a4684829de1442
   - https://lemonldap-ng.org/documentation/latest/applications/guacamole
-https://guacamole.apache.org/doc/gug/administration.html#connection-management
+  - https://guacamole.apache.org/doc/gug/administration.html#connection-management
   - https://jasoncoltrin.com/2017/10/04/setup-guacamole-remote-desktop-gateway-on-ubuntu-with-one-script/
