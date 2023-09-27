@@ -6,14 +6,13 @@
 
 terraform {
   required_providers {
-    keycloak = {
+    guacamole = {
       source = "techBeck03/guacamole"
-      version = ">= 1.4.1"
+      version = "1.4.1"
     }
   }
 }
 
-# Configure the Guacamole Provider
 provider "guacamole" {
  # url         = "https://guacamole.example.com"
   #token       = "8675309"

@@ -91,7 +91,7 @@ patch init/server.xml < config/guacamole/0.enable-tomcat-ssl.patch
 # Create private keys for:
 #   Guacamole
 #   Keycloak
-if [[ "${TLS_USE_LETS_ENCRYPT_CERTS}" == "true" ]]
+if [[ "${TLS_LETS_ENCRYPT}" == "true" ]]
 then
   echo -e "\n Generating let's encrypt certificates"
   [[ ! -d init/x509 ]] && mkdir init/x509
@@ -159,6 +159,8 @@ else
       -out init/keycloak.crt \
       -subj "/C=FR/O=My Company/OU=My Division/CN=${KC_HOSTNAME}"
   }
+ #TODO : better fix for unix rights
+  chmod a+r init/guacamole.key init/keycloak.key
 
   #adding self signed certificates to truststore
   chmod u+w init/cacerts

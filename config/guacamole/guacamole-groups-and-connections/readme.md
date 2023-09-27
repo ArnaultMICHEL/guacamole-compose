@@ -6,3 +6,5 @@ You espacially need to manage the following 4 ressources :
 2. https://registry.terraform.io/providers/techBeck03/guacamole/latest/docs/resources/connection_rdp
 3. https://registry.terraform.io/providers/techBeck03/guacamole/latest/docs/resources/connection_ssh
 4. https://registry.terraform.io/providers/techBeck03/guacamole/latest/docs/resources/user_group
+
+> WARNING : this terraform version 1.4.1 is not working with guacamole 1.5.3

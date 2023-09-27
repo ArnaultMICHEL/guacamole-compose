@@ -8,7 +8,7 @@ Ready in 15 minutes, with MFA available in option :)
 
 ### Generate `.env` file with your secrets
 
-Create `.env` file in project root directory, and edit it with you own needs :
+Create `.env` file in project root directory, and edit it with you own needs (DNS, ) :
 
 ```bash
 source .secrets.env
@@ -17,13 +17,13 @@ vi .env
 
 ### TLS X.509 server certificates
 
-> **Please note:**  haproxy sni requires *uniq* certs for *each* backend so you'll need separate X.509 server certificates for guacamole and keycloak
+> **Please note:**  haproxy sni requires *uniq* X.509 server certificates for *each* backend, so you'll need separate certificates for guacamole and keycloak
 
 You have 3 options :
 
 - **generate self signed server certificates** : fast but dirty (on a security point of view)
   - set `TLS_LETS_ENCRYPT=false` in `.env` file
-  - Please add init/guacamole.crt and init/keycloak.crt to your browser's trusted certificates.
+  - Please add init/guacamole.crt and init/keycloak.crt to your browser's trusted certificates after generation (`./setup.sh` execution).
 
 - **use free server certificates** : you need a public IP linked to DNS A records on ${GUAC_HOSTNAME} and ${KC_HOSTNAME}
   - set `TLS_LETS_ENCRYPT=true` in `.env` file
@@ -47,7 +47,7 @@ As it is a web service, it requires name resolution to work : register DNS entri
 > for a local POC, add the following entry to `/etc/hosts` if you didn't register DNS entries :
 
 ```bash
-source .secret.env
+source .secrets.env
 echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 ```
 
@@ -65,7 +65,7 @@ The `setup.sh` script will configure the databases and cryptographic keys
 docker compose up -d
 ```
 
-### Configure keycloak
+## Configure keycloak
 
 This will :
 1. create a new realm
@@ -78,7 +78,7 @@ cd config/keycloak
 ./2.init-keycloak-create-guacamole-admin-user.sh
 ```
 
-### Configure guacamole
+## Configure guacamole
 
 ```bash
 cd config/guacamole

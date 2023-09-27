@@ -8,4 +8,5 @@ myCompanyCA.pem
 .env
 config/keycloak/guacamole-realm-config/.terraform*
 config/keycloak/guacamole-realm-config/terraform.tfstate*
-
+config/guacamole/guacamole-groups-and-connections/.terraform*
+config/guacamole/guacamole-groups-and-connections/terraform.tfstate*

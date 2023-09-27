@@ -11,17 +11,19 @@ Unfortunately, I was not able to pass the authentication :
 
 # Keycloak CLI scripts
 
+## `keycloak-add-gucamole-role.sh`
+
+This script create new guacamole client roles.
+
+Please note that they **must be exactly equals to a guacamole user's group** in https://${GUAC_HOSTNAME}/guacamole/#/settings/userGroups
+
 ## `keycloak-add-user.sh`
 
 This script create a local account with a temporary password, and propose to link client roles (=guacamole user group) to this account
 
 Input parameters : 
 
-## `keycloak-add-gucamole-role.sh`
 
-This script create new guacamole client roles.
-
-Please note that they **must be exactly equals to a guacamole user's group** in https://${GUAC_HOSTNAME}/guacamole/#/settings/userGroups
 
 ## Documentation
 
