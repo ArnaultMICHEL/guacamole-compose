@@ -20,7 +20,7 @@ resource "guacamole_connection_ssh" "prj1_vm1_ssh" {
   }
 }
 
-# https://registry.terraform.io/providers/techBeck03/guacamole/latest/docs/resources/connection_rdp
+# doc : https://registry.terraform.io/providers/techBeck03/guacamole/latest/docs/resources/connection_rdp
 resource "guacamole_connection_rdp" "prj1_vm1_rdp" {
   name = "Test RDP Connection"
   parent_identifier = guacamole_connection_group.group_prj_1.identifier
