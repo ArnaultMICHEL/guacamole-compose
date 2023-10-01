@@ -18,7 +18,7 @@ resource "keycloak_realm" "guacamole" {
   verify_email             = false
   login_with_email_allowed = true
   duplicate_emails_allowed = false
-  ssl_required             = "external"
+  ssl_required             = "all"
 
   #Themes
   login_theme   = "keycloak"
@@ -216,7 +216,7 @@ resource "keycloak_openid_client_default_scopes" "guacamole_client_default_scope
 resource "keycloak_authentication_flow" "browser_x509_flow" {
   alias       = "X509Browser"
   realm_id    = var.keycloak_realm
-  description = "browser based authentication, With IGCv3 X.509"
+  description = "browser based authentication, With PKI X.509 end user certificate"
   provider_id = "basic-flow"
   depends_on = [ keycloak_realm.guacamole ]
 }
@@ -264,7 +264,7 @@ resource "keycloak_authentication_execution" "browser_x509" {
 resource "keycloak_authentication_execution_config" "mfa_config" {
   realm_id     = var.keycloak_realm
   execution_id = keycloak_authentication_execution.browser_x509.id
-  alias        = "MFA-IGCv3-Token"
+  alias        = "MFA-PKI-Token"
   config = {
 		"x509-cert-auth.canonical-dn-enabled"     = "false"
 		"x509-cert-auth.extendedkeyusage"         = "1.3.6.1.5.5.7.3.2"

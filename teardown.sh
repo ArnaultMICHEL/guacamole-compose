@@ -1,4 +1,2 @@
 #!/bin/bash
-rm -rf data/*
-rm -rf init/*
-rm -rf openid/* 
+rm -rf $(dirname $0)/data/* $(dirname $0)/init/* $(dirname $0)/openid/* $(dirname $0)/tools/*

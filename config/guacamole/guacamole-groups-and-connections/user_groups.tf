@@ -16,8 +16,7 @@ resource "guacamole_user_group" "group_guacamole_user" {
 
 resource "guacamole_user_group" "group_guacamole_admin" {
   identifier = "Guacamole-Admins"
-  system_permissions = ["ADMINISTER"]
-
+  system_permissions = ["ADMINISTER","CREATE_CONNECTION","CREATE_CONNECTION_GROUP","CREATE_SHARING_PROFILE","CREATE_USER","CREATE_USER_GROUP"]
   attributes {
     disabled = false
   }

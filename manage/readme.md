@@ -32,7 +32,9 @@ Input parameters :
 
 # Guacamole CLI scripts
 
-It was not working, I was not able to manage CLI authentication as guacamole complain about the nonce claim :
+## CLI Authentication on Keycloak Failed :(
+
+As i was not able to manage CLI authentication on Keycloak as guacamole complain about the nonce claim :
 
 ```bash
 $ curl -X POST "https://${GUAC_HOSTNAME}/guacamole/api/tokens" \
@@ -64,8 +66,10 @@ $ curl -X POST "https://${GUAC_HOSTNAME}/guacamole/api/tokens" \
 }
 ```
 
-guacd logs show : 
+guacd logs show :
 
 ```text
 09:12:20.290 [https-openssl-apr-8443-exec-4] INFO  o.a.g.a.o.t.TokenValidationService - Rejected OpenID token without nonce.
 ```
+
+I found that you can manually authenticate on Guacamole, and then retrieve 
