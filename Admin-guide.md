@@ -1,7 +1,13 @@
 
-# Administration of the service
+# Administration of Guacamole and Keycloak
 
-There is 3 ways to manage users, roles and connections to VMs/Servers :
+You have now to manage 3 ressources :
+- connections to VMs or servers,
+  - they can be hierarchically organized with connection groups.
+- user's that can access the servie,
+- roles that defines authorizations.
+
+There is 3 ways to manage thoses ressources :
 1. using terraform : i encourage it as it will help to manage the lifecycles
 2. using CLI Scripts located in `manage` directory
 3. using the admin web GUI
@@ -9,13 +15,18 @@ There is 3 ways to manage users, roles and connections to VMs/Servers :
 ## Manage Guacamole configuration with Terraform (**recommended**)
 
 With terraform, in `./config/guacamole/guacamole-groups-and-connections` directory :
-- edit `connection_groups.tf`, `connections.tf` and `user_groups.tf`
+- edit `connection_groups.tf`, `connections.tf` and `user_groups.tf` to fit your needs
+- run `./1.manage-guacamole-config.sh`
 
 > Note :  for a fine grained RBAC, I recommended one connection group per project or team, and one user_group per connection
 
+## Manage Guacamole configuration with CLI
+
+*TODO*
+
 ## Manage Guacamole with web admin GUI  
 
-### : Add Connections to VM/Server
+### : Add Connections to a new VM/Server
 
 A connection is an access to a VM or a server.
 
@@ -46,7 +57,7 @@ Reference: https://jasoncoltrin.com/2017/10/04/setup-guacamole-remote-desktop-ga
 
 ### Adding User group to Guacamole (for RBAC)
 
-User Groups define the authorizations of end users : Which connections and connexion groups a user can access.
+User Groups define the authorizations of end users : which connections and connexion groups a user can access.
 
 | Action description                          | CLI or screenshot |
 | ------------------------------------------- | ----------------- |
@@ -95,23 +106,23 @@ You have 3 differents ways to manage Keycloak users and roles :
     > You will be prompted to add roles to the user
 3. With Web admin GUI :
    - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}:8443/admin/`
-   - go to guacamole realm > Users > click **Add user"
+   - go to guacamole realm > **Users** > click **Add user**
    - set at least a username and a mail
+   - set **Configure OTP** as a required action if an OTP is required for this user
    - (not needed with X.509 MFA) go to **Credentials** tab > click **Set password** > define a password.
      - prefer a temporary as the user will need to change it on first connexion
    - go to **Role mapping** tab > click **Assign Role** > select **Filter by clients** > enter $ in Search by role name
      - select the desired role(s) and click **Assign**
 
-> If you activate MFA, Keycloak user's account email should match the email embedded in SAN extention of end user's X.509 certificates.
-> If you want to change the mapping between end user certificate and their keycloak account, modify the settings here :
+> If you activate MFA, Keycloak user's email should match the email embedded in SAN extention of end user's X.509 certificates.
 
 ## Keycloak security features
 
-Keycloak propose a ton of very interesting security features : i selected my *best-of* below.
+Keycloak propose a lot of very interesting security features : i selected my *best-of* below.
 
 ### Use LDAP or Kerberos user repository
 
-If they are reachable, using a managed user repository is better than managing "local" Keycloak user accounts lifecycle.
+Generally, using a managed user repository is far better than managing "local" Keycloak user accounts lifecycle.
 
 Please read [Using external storage](https://www.keycloak.org/docs/latest/server_admin/#_user-storage-federation)
 
@@ -139,6 +150,7 @@ to enforce users using OTP :
   - select **guacamole** realm (Upper left) > **Users** on the left menu > select the desired user
   - on **required user actions** field, select **Configure OTP**, click **Save**
     ![Users > select user > required user actions > Configure OTP](docs/images/keycloak-set-OTP-for-one-user.png "Users > select user > required user actions > Configure OTP") 
+
 ### Self Service account managment
 
 Keycloak provide a web interface for users, where they can :
@@ -148,13 +160,13 @@ Keycloak provide a web interface for users, where they can :
 - include identity provider accounts,
 - ...
 
-To retrieve URL :
+To retrieve the URL of the this service:
 ```bash
 source .secrets.env
 echo https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}/account/
 ```
 
-### [] Add social login
+### [Optional] Add social login
 
 You can activate social logins with bitbucket, Facebook, GitHub, GitLab, Google, LinkedIn, Twitter, ...
 
@@ -166,5 +178,5 @@ Simply follow the configurations steps in [Keycloak documentation](https://www.k
 
 ```bash
 source .secrets.env
-docker exec -it guacamole_database psql -U ${GUAC_POSTGRES_USER} -w  guacamole_db
+docker exec -it guacamole_database psql -U ${GUAC_POSTGRES_USER} -w guacamole_db
 ```
