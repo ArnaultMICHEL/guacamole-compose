@@ -1,7 +1,7 @@
 # add your users here
 
 resource "keycloak_user" "guacamole_sample_user" {
-  realm_id   = var.keycloak_realm
+  realm_id   = keycloak_realm.guacamole.id
   username   = "guacuser"
   enabled    = true
 
@@ -16,7 +16,7 @@ resource "keycloak_user" "guacamole_sample_user" {
 }
 
 resource "keycloak_user_roles" "guacamole_sample_user_roles" {
-  realm_id = var.keycloak_realm
+  realm_id = keycloak_realm.guacamole.id
   user_id  = keycloak_user.guacamole_sample_user.id
 
   role_ids = [
@@ -25,7 +25,7 @@ resource "keycloak_user_roles" "guacamole_sample_user_roles" {
 }
 
 resource "keycloak_user" "guacamole_admin_user" {
-  realm_id   = var.keycloak_realm
+  realm_id   = keycloak_realm.guacamole.id
   username   = "guacadmin@guacadmin"
   enabled    = true
 
@@ -40,7 +40,7 @@ resource "keycloak_user" "guacamole_admin_user" {
 }
 
 resource "keycloak_user_roles" "guacamole_admin_user_roles" {
-  realm_id = var.keycloak_realm
+  realm_id =keycloak_realm.guacamole.id
   user_id  = keycloak_user.guacamole_admin_user.id
 
   role_ids = [
