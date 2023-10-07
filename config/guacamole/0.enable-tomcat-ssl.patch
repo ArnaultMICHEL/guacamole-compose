@@ -1,5 +1,5 @@
---- init/server.xml.orig	2023-08-29 14:14:56.229595675 +0200
-+++ init/server.xml	2023-08-29 15:37:47.283556093 +0200
+--- init/server.xml.orig	2023-10-07 09:51:22.965599186 +0200
++++ init/server.xml	2023-10-07 09:20:25.666091671 +0200
 @@ -104,20 +104,17 @@
           Either JSSE or OpenSSL style configuration may be used. OpenSSL style
           configuration is used below.
@@ -23,3 +23,21 @@
  
      <!-- Define an AJP 1.3 Connector on port 8009 -->
      <!--
+@@ -159,14 +156,15 @@
+       </Realm>
+ 
+       <Host name="localhost"  appBase="webapps"
+-            unpackWARs="true" autoDeploy="true">
++            unpackWARs="true" autoDeploy="false">
+ 
+         <!-- SingleSignOn valve, share authentication between web applications
+              Documentation at: /docs/config/valve.html -->
+         <!--
+         <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+         -->
+-
++        <Context path="" docBase="/opt/guacamole/guacamole.war" reloadable="true">
++        </Context>
+         <!-- Access log processes all example.
+              Documentation at: /docs/config/valve.html
+              Note: The pattern used is equivalent to using pattern="common" -->

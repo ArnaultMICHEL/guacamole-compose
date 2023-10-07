@@ -5,10 +5,11 @@
 1. Generate init/server.xml.orig and copy it to init/server.xml
 
    ```bash
+   source .secrets.env
    # get the original server.xml
    touch init/server.xml.orig
    docker run --rm --name guacamole-setup \
-     docker.io/guacamole/guacamole:1.1.0 \
+     docker.io/guacamole/guacamole:${GUACAMOLE_VERSION} \
      cat /usr/local/tomcat/conf/server.xml > init/server.xml.orig
 
    # make a copy to patch
@@ -28,6 +29,7 @@
 1. Generate init/initdb.sql.orig and copy it to init/initdb.sql
 
    ```bash
+   source .secrets.env
    docker run --rm \
      docker.io/guacamole/guacamole:${GUACAMOLE_VERSION} \
        /opt/guacamole/bin/initdb.sh --postgresql > init/initdb.sql.orig

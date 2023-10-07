@@ -20,7 +20,7 @@ source $(dirname $0)/../.shared_cli_functions.sh
 
 # Create a new connection group (~project)
 # https://github.com/ridvanaltun/guacamole-rest-api-documentation/blob/master/docs/CONNECTIONS.md#create-rdp-connection
-curl -X POST https://${GUAC_HOSTNAME}/guacamole/api/session/data/postgresql/connectionGroups \
+curl -X POST https://${GUAC_HOSTNAME}/api/session/data/postgresql/connectionGroups \
      --header "Guacamole-Token: ${GUACAMOLE_TOKEN}" \
      --header "Content-Type: application/json; charset=utf-8" \
      --silent --insecure \

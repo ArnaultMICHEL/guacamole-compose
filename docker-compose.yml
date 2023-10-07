@@ -69,7 +69,7 @@ services:
       GUACD_HOSTNAME: guacd
       GUACD_PORT_4822_TCP_ADDR: guacd
       GUACD_PORT_4822_TCP_PORT: 4822
-      GUACAMOLE_HOSTNAME: https://guacamole:8443/guacamole/#
+      GUACAMOLE_HOSTNAME: https://guacamole:8443/#
       # https://${KC_HOSTNAME}:8443/realms/${KEYCLOAK_REALM_NAME}/.well-known/openid-configuration
       # https://guacamole.apache.org/doc/gug/openid-auth.html
       OPENID_AUTHORIZATION_ENDPOINT: https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}/protocol/openid-connect/auth
@@ -77,7 +77,7 @@ services:
       OPENID_ISSUER: https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}
       OPENID_CLIENT_ID: guacamole
       #OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole/#/settings/sessions
-      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole
+      OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/
       OPENID_CLAIM_TYPE: sub
       # OPENID_CLAIM_TYPE: preferred_username
       OPENID_SCOPE: openid profile
@@ -102,7 +102,6 @@ services:
     networks:
       - haproxy_net
     environment:
-      HA_PROXY_ENDPOINT: '${HA_PROXY_ENDPOINT}'
       GUAC_HOSTNAME: '${GUAC_HOSTNAME}'
       KC_HOSTNAME: '${KC_HOSTNAME}'
     depends_on:

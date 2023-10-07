@@ -34,7 +34,7 @@ They can be hierarchically stored with connection groups
 
 | Action description                          | CLI or screenshot |
 | ------------------------------------------- | ----------------- |
-| login to guacamole with an admin account    |  `firefox https://${GUAC_HOSTNAME}:8443/guacamole/`  |
+| login to guacamole with an admin account    |  `firefox https://${GUAC_HOSTNAME}/`  |
 | **Upper right corner, username, settings**  | ![Upper right corner, username, settings](docs/images/0-guacamole-settings.png "Upper right corner, username, settings")  |
 | **Middle top, connections, left, new connection**  | ![Middle top, connections, left, new connection](docs/images/1-new-connection.png "Middle top, connections, left, new connection")  |
 | **Configure the SSH connection**            |  ![Protocol SSH](docs/images/2-new-connection-ssh-a.png "Protocol SSH") |
@@ -61,7 +61,7 @@ User Groups define the authorizations of end users : which connections and conne
 
 | Action description                          | CLI or screenshot |
 | ------------------------------------------- | ----------------- |
-| login to guacamole with an admin account    |  `firefox https://${GUAC_HOSTNAME}:8443/guacamole/`  |
+| login to guacamole with an admin account    |  `firefox https://${GUAC_HOSTNAME}/`  |
 | **Upper right corner, username, settings**  | ![Upper right corner, username, settings](docs/images/0-guacamole-settings.png "Upper right corner, username, settings")  |
 | **Middle top, Groups, left, new group**     | ![Upper right corner, username, settings](docs/images/guacamole-add-user-group.png "Upper right corner, username, settings")  |
 | *Group Name*: some-name (i like to identify the project or team, and the VM)  | |
@@ -84,7 +84,7 @@ You have 3 differents ways to manage guacamole client roles to Keycloak :
     ./keycloak-add-gucamole-role.sh guacamoleUserGroupName "descirption of the role"
     ```
 3. With Web admin GUI :
-  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}:8443/admin/`
+  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
   - go to guacamole realm > clients > guacamole
     ![guacamole realm > clients > guacamole](docs/images/ "guacamole realm > clients > guacamole")
   - open **Roles** tab, and click on **Create Role**
@@ -105,7 +105,7 @@ You have 3 differents ways to manage Keycloak users and roles :
     ```
     > You will be prompted to add roles to the user
 3. With Web admin GUI :
-   - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}:8443/admin/`
+   - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
    - go to guacamole realm > **Users** > click **Add user**
    - set at least a username and a mail
    - set **Configure OTP** as a required action if an OTP is required for this user
@@ -141,12 +141,12 @@ It is very easy to configure.
 
 to enforce users using OTP :
 1. for all users : do this before creating users accounts
-  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}:8443/admin/`
+  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
   - select **guacamole** realm (Upper left) > **Authentication** on the left menu > **Required actions** tab
   - on **Configure OTP** raw, **set as default action** true
      ![Authentication > Required actions > Configure OTP > set as default action](docs/images/keycloak-set-OTP-for-all-users.png "Authentication > Required actions > Configure OTP > set as default action") 
 2. for some users :
-  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}:8443/admin/`
+  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
   - select **guacamole** realm (Upper left) > **Users** on the left menu > select the desired user
   - on **required user actions** field, select **Configure OTP**, click **Save**
     ![Users > select user > required user actions > Configure OTP](docs/images/keycloak-set-OTP-for-one-user.png "Users > select user > required user actions > Configure OTP") 
@@ -180,3 +180,13 @@ Simply follow the configurations steps in [Keycloak documentation](https://www.k
 source .secrets.env
 docker exec -it guacamole_database psql -U ${GUAC_POSTGRES_USER} -w guacamole_db
 ```
+
+### Connecting to a running docker image
+
+```bash
+select container in $(docker compose ps --format json |jq -r '.[].Service')
+do
+  docker compose exec ${container} /bin/bash
+done
+```
+

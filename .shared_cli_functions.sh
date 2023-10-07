@@ -46,7 +46,7 @@ check_terraform_binary() {
   [[ ! -e "$(dirname "$BASH_SOURCE")/tools/terraform" ]] && {
     echo " => installing terraform binary"
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -O /tmp/terraform.zip
-    unzip /tmp/terraform.zip -d ~/bin
+    unzip /tmp/terraform.zip -d $(dirname "$BASH_SOURCE")/tools
     rm /tmp/terraform.zip
   }
   export PATH=${PATH}:$(dirname "$BASH_SOURCE")/tools

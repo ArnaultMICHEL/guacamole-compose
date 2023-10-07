@@ -41,7 +41,7 @@ resource "keycloak_user" "guacamole_admin_user" {
 
 resource "keycloak_user_roles" "guacamole_admin_user_roles" {
   realm_id = var.keycloak_realm
-  user_id  = keycloak_user.admin_with_initial_password.id
+  user_id  = keycloak_user.guacamole_admin_user.id
 
   role_ids = [
     keycloak_role.guacamole_admin_client_role.id

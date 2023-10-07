@@ -15,7 +15,7 @@ Unfortunately, I was not able to pass the authentication :
 
 This script create new guacamole client roles.
 
-Please note that they **must be exactly equals to a guacamole user's group** in https://${GUAC_HOSTNAME}/guacamole/#/settings/userGroups
+Please note that they **must be exactly equals to a guacamole user's group** in https://${GUAC_HOSTNAME}/#/settings/userGroups
 
 ## `keycloak-add-user.sh`
 
@@ -55,7 +55,7 @@ $ curl -X POST "https://${GUAC_HOSTNAME}/guacamole/api/tokens" \
         {
             "name":"id_token",
             "type":"REDIRECT",
-            "redirectUrl":"https://sso.poc.eclair.cloud/realms/guacamole/protocol/openid-connect/auth?scope=openid+email+profile&response_type=id_token&client_id=guacamole&redirect_uri=https%3A%2F%2Fguacamole.poc.eclair.cloud%2Fguacamole&nonce=mlggr781ndofggpolfo010gma8",
+            "redirectUrl":"https://keycloak.rfa.net/realms/guacamole/protocol/openid-connect/auth?scope=openid+email+profile&response_type=id_token&client_id=guacamole&redirect_uri=https%3A%2F%2Fguacamole.poc.eclair.cloud%2Fguacamole&nonce=mlggr781ndofggpolfo010gma8",
             "translatableMessage": {
                 "key":"LOGIN.INFO_IDP_REDIRECT_PENDING",
                 "variables":null

@@ -18,8 +18,8 @@ export TF_VAR_keycloak_realm=${KEYCLOAK_REALM_NAME}
 export TF_VAR_root_ca_cert=$(dirname $0)/../../init/x509/${GUAC_HOSTNAME}_ecc/ca.cer
 
 # Keycloak guacamole realm config
-export TF_VAR_guacamole_openid_callback=https://${GUAC_HOSTNAME}/guacamole
-export TF_VAR_guacamole_root_url=https://${GUAC_HOSTNAME}/guacamole
+export TF_VAR_guacamole_openid_callback=https://${GUAC_HOSTNAME}/
+export TF_VAR_guacamole_root_url=https://${GUAC_HOSTNAME}/
 export TF_VAR_guacamole_web_origins=https://${GUAC_HOSTNAME}
 
 
