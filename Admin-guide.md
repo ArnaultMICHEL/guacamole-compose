@@ -84,7 +84,7 @@ You have 3 differents ways to manage guacamole client roles to Keycloak :
     ./keycloak-add-gucamole-role.sh guacamoleUserGroupName "descirption of the role"
     ```
 3. With Web admin GUI :
-  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
+  - login on Keycloak admin : `source .load.env ; firefox https://${KC_HOSTNAME}/admin/`
   - go to guacamole realm > clients > guacamole
     ![guacamole realm > clients > guacamole](docs/images/ "guacamole realm > clients > guacamole")
   - open **Roles** tab, and click on **Create Role**
@@ -105,7 +105,7 @@ You have 3 differents ways to manage Keycloak users and roles :
     ```
     > You will be prompted to add roles to the user
 3. With Web admin GUI :
-   - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
+   - login on Keycloak admin : `source .load.env ; firefox https://${KC_HOSTNAME}/admin/`
    - go to guacamole realm > **Users** > click **Add user**
    - set at least a username and a mail
    - set **Configure OTP** as a required action if an OTP is required for this user
@@ -141,12 +141,12 @@ It is very easy to configure.
 
 to enforce users using OTP :
 1. for all users : do this before creating users accounts
-  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
+  - login on Keycloak admin : `source .load.env ; firefox https://${KC_HOSTNAME}/admin/`
   - select **guacamole** realm (Upper left) > **Authentication** on the left menu > **Required actions** tab
   - on **Configure OTP** raw, **set as default action** true
      ![Authentication > Required actions > Configure OTP > set as default action](docs/images/keycloak-set-OTP-for-all-users.png "Authentication > Required actions > Configure OTP > set as default action") 
 2. for some users :
-  - login on Keycloak admin : `source .secrets.env ; firefox https://${KC_HOSTNAME}/admin/`
+  - login on Keycloak admin : `source .load.env ; firefox https://${KC_HOSTNAME}/admin/`
   - select **guacamole** realm (Upper left) > **Users** on the left menu > select the desired user
   - on **required user actions** field, select **Configure OTP**, click **Save**
     ![Users > select user > required user actions > Configure OTP](docs/images/keycloak-set-OTP-for-one-user.png "Users > select user > required user actions > Configure OTP") 
@@ -162,7 +162,7 @@ Keycloak provide a web interface for users, where they can :
 
 To retrieve the URL of the this service:
 ```bash
-source .secrets.env
+source .load.env
 echo https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}/account/
 ```
 
@@ -177,7 +177,7 @@ Simply follow the configurations steps in [Keycloak documentation](https://www.k
 ### connecting to guacamole postgresql database
 
 ```bash
-source .secrets.env
+source .load.env
 docker exec -it guacamole_database psql -U ${GUAC_POSTGRES_USER} -w guacamole_db
 ```
 

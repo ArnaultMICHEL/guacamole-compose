@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-source $(dirname $0)/../.secrets.env
+source $(dirname $0)/../.load.env
 source $(dirname $0)/../.shared_cli_functions.sh
 
 # check CLI parameters

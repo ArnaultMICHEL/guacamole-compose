@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-source .secrets.env 
+source .load.env 
 
 echo "checking for patch"
 [[ -x "$(command -v patch)" ]] || { echo " patch not found => installing it"; sudo dnf install patch -y; }

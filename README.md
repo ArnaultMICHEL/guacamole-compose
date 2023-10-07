@@ -1,15 +1,15 @@
 # Abstract
 
-Docker compose project with [guacamole](https://guacamole.apache.org/) VDI services, relying on [Keycloak](https://www.keycloak.org/) for authentication and role based access control (RBAC).
+This project propose a free VDI service based on [guacamole](https://guacamole.apache.org/), relying on [Keycloak](https://www.keycloak.org/) for authentication and role based access control (RBAC).
 
 The strenght of two great open source software combined :
 - Guacamole :
-  - only needs an HTML 5 Browser to access remote console or desktop on end users device,
+  - only needs an HTML 5 Browser to access remote desktop or console on end users device,
   - only need 1 CPU with 2GB RAM per 25 connected users
   - is very reactive (if proxies doesn't blocks websockets...)
-- Keycloak provides a lot of very nice security features.
+- Keycloak provides a lot of security features for authentication, authorization, session managment.
 
-Ready in 10 minutes, with MFA available in option :)
+Ready in 10 minutes, with [MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication) available in option :)
 
 Configuration of [Guacamole](./config/guacamole/guacamole-groups-and-connections/) and [Keycloak](./config/keycloak/) can be managed as code with terraform, which improve configuration managment and auditability.
 
@@ -20,7 +20,7 @@ Configuration of [Guacamole](./config/guacamole/guacamole-groups-and-connections
 Create `.env` file in project root directory, and edit it with you own needs (DNS, admin users, ...) :
 
 ```bash
-source .secrets.env
+source .load.env
 vi .env
 ```
 
@@ -60,7 +60,7 @@ As it is a web service, it requires name resolution : please register two DNS re
 
 > for a local POC, add the following line to `/etc/hosts` if you didn't register DNS records :
 > ```bash
-> source .secrets.env
+> source .load.env
 > echo "127.0.1.1 ${GUAC_HOSTNAME} ${KC_HOSTNAME}" >>/etc/hosts
 > ```
 
@@ -111,7 +111,7 @@ cd config/guacamole
 
 In Keycloak admin GUI, change the Browser flow to `X509Browser` as default :
 
-0. `firefox https://${KC_HOSTNAME}:8443/admin/`
+0. `firefox https://${KC_HOSTNAME}/admin/`
 1. On the left menu, select **guacamole realm**
 2. select **Authentication** 
 3. on the right, on **`X509Browser`** raw, click on **...** and select bind flow
@@ -121,7 +121,7 @@ In Keycloak admin GUI, change the Browser flow to `X509Browser` as default :
 
 You can also manage it with terraform : 
 2. define a new guacamole admin user, as the default one (guacadmin@guacadmin) won't be able to login anymore
-  - `firefox https://${KC_HOSTNAME}:8443/admin/` > select guacamole realm > select Users > choose a user
+  - `firefox https://${KC_HOSTNAME}/admin/` > select guacamole realm > select Users > choose a user
   - on **Role mapping** tab, click **Assign role** > Filter by clients > put in search *guacamole* > select **Guacamole-Admins** > click **Assign**
 1. set `browser_flow` key to value **X509Browser**  ( simply switch comments @ line 46/47 in `./config/keycloak/guacamole-realm-config/main.tf`)
 
@@ -147,8 +147,8 @@ Open your favorite HTML 5 compliant browser (firefox, chrome, chromium, edge, ..
 ### Guacamole service
 
 ```bash
-source .secrets.env
-firefox https://${GUAC_HOSTNAME}:8443/guacamole/
+source .load.env
+firefox https://${GUAC_HOSTNAME}/
 ```
 
   - authenticate with guacadmin@guacadmin / guacAdmin@guacAdmin
@@ -158,8 +158,8 @@ firefox https://${GUAC_HOSTNAME}:8443/guacamole/
 ### Keycloak service
 
 ```bash
-source .secrets.env
-firefox https://${KC_HOSTNAME}:8443/admin/
+source .load.env
+firefox https://${KC_HOSTNAME}/admin/
 ```
 
   - authenticate with `KEYCLOAK_ADMIN_USER` / `KEYCLOAK_ADMIN_PASSWORD` from `.env` file
@@ -191,7 +191,7 @@ I bring it one step weyong with :
  - [x] manage guacamole groups and connections with terraform
  - [~] add CLI scripts to manage manage guacamole groups and connections
    - ask for a token after a manual authentication, then call rest API's with curl 
- - [ ] remove `/guacamole` URI
+ - [x] move guacamole service base URI : `/guacamole` -> `/`
  - [ ] manage default guacamole admin user with environment variables
  - [ ] manage automatic TLS server certificate renewal with acme.sh
  - [ ] provide another terraform subproject for adding guacamole client to an existing Keycloak REALM

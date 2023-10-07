@@ -5,7 +5,7 @@
 1. Generate init/server.xml.orig and copy it to init/server.xml
 
    ```bash
-   source .secrets.env
+   source .load.env
    # get the original server.xml
    touch init/server.xml.orig
    docker run --rm --name guacamole-setup \
@@ -29,7 +29,7 @@
 1. Generate init/initdb.sql.orig and copy it to init/initdb.sql
 
    ```bash
-   source .secrets.env
+   source .load.env
    docker run --rm \
      docker.io/guacamole/guacamole:${GUACAMOLE_VERSION} \
        /opt/guacamole/bin/initdb.sh --postgresql > init/initdb.sql.orig
