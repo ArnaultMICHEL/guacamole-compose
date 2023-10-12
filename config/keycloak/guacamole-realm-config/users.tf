@@ -1,5 +1,6 @@
-# add your users here
+# Add users and theirs roles here
 
+# This unprivileged user is given as an example, you can remove or replace it
 resource "keycloak_user" "guacamole_sample_user" {
   realm_id   = keycloak_realm.guacamole.id
   username   = "guacuser"
@@ -24,17 +25,17 @@ resource "keycloak_user_roles" "guacamole_sample_user_roles" {
   ]
 }
 
+# Keep this account for first start
 resource "keycloak_user" "guacamole_admin_user" {
   realm_id   = keycloak_realm.guacamole.id
-  username   = "guacadmin@guacadmin"
+  username   = var.guacamole_admin_login
   enabled    = true
-
-  email      = "guacadmin@guacadmin"
+  email      = "guacadmin@guacadmin.local"
   first_name = "Guacamole"
   last_name  = "First Admin"
 
   initial_password {
-    value     = "guacAdmin@guacAdmin"
+    value     = var.guacamole_admin_password
     temporary = true
   }
 }

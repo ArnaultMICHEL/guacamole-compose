@@ -22,3 +22,13 @@ variable "guacamole_web_origins" {
   description = "Guacamole web origins for CORS"
   type = string
 }
+
+variable "guacamole_admin_login" {
+  description = "Guacamole admin login, from GUACAMOLE_ADMIN_USER env var in .env"
+  type = string
+}
+
+variable "guacamole_admin_password" {
+  description = "Guacamole admin password, from GUACAMOLE_ADMIN_TEMP_PASSWORD env var in .env"
+  type = string
+}

@@ -15,7 +15,7 @@ TMP_PWD=$(openssl rand -base64 10 | tr -d '=')
 
 title "Add Keycloak User for guacamole" "Adding a user to keycloak with a temporary password and guacamole roles"
 
-authentication4KeycloakAdminCLI "${KEYCLOAK_REALM_NAME}" "${GUACAMOLE_ADMIN_USER}" "${GUACAMOLE_ADMIN_PASSWORD}"
+authentication4KeycloakAdminCLI "${KEYCLOAK_REALM_NAME}" "${GUACAMOLE_ADMIN_USER}" "${GUACAMOLE_ADMIN_TEMP_PASSWORD}"
 
 ## Create the user in keycloak
 kcadm.sh \

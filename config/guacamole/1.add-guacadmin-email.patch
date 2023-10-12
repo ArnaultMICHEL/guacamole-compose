@@ -5,16 +5,16 @@
  -- Create default user "guacadmin" with password "guacadmin"
  INSERT INTO guacamole_entity (name, type) VALUES ('guacadmin', 'USER');
 -INSERT INTO guacamole_user (entity_id, password_hash, password_salt, password_date)
-+INSERT INTO guacamole_entity (name, type) VALUES ('guacadmin@guacadmin', 'USER');
++INSERT INTO guacamole_entity (name, type) VALUES ('guacadmin@guacadmin.local', 'USER');
 +INSERT INTO guacamole_user (entity_id, email_address, password_hash, password_salt, password_date)
  SELECT
      entity_id,
-+    'guacadmin@guacadmin',
++    'guacadmin@guacadmin.local',
      decode('CA458A7D494E3BE824F5E1E175A1556C0F8EEF2C2D7DF3633BEC4A29C4411960', 'hex'),  -- 'guacadmin'
      decode('FE24ADC5E11E2B25288D1704ABE67A79E342ECC26064CE69C5B3177795A82264', 'hex'),
      CURRENT_TIMESTAMP
 -FROM guacamole_entity WHERE name = 'guacadmin' AND guacamole_entity.type = 'USER';
-+FROM guacamole_entity WHERE name = 'guacadmin@guacadmin' AND guacamole_entity.type = 'USER';
++FROM guacamole_entity WHERE name = 'guacadmin@guacadmin.local' AND guacamole_entity.type = 'USER';
  
  -- Grant this user all system permissions
  INSERT INTO guacamole_system_permission (entity_id, permission)
@@ -27,12 +27,12 @@
 -        ('guacadmin', 'CREATE_USER'),
 -        ('guacadmin', 'CREATE_USER_GROUP'),
 -        ('guacadmin', 'ADMINISTER')
-+        ('guacadmin@guacadmin', 'CREATE_CONNECTION'),
-+        ('guacadmin@guacadmin', 'CREATE_CONNECTION_GROUP'),
-+        ('guacadmin@guacadmin', 'CREATE_SHARING_PROFILE'),
-+        ('guacadmin@guacadmin', 'CREATE_USER'),
-+        ('guacadmin@guacadmin', 'CREATE_USER_GROUP'),
-+        ('guacadmin@guacadmin', 'ADMINISTER')
++        ('guacadmin@guacadmin.local', 'CREATE_CONNECTION'),
++        ('guacadmin@guacadmin.local', 'CREATE_CONNECTION_GROUP'),
++        ('guacadmin@guacadmin.local', 'CREATE_SHARING_PROFILE'),
++        ('guacadmin@guacadmin.local', 'CREATE_USER'),
++        ('guacadmin@guacadmin.local', 'CREATE_USER_GROUP'),
++        ('guacadmin@guacadmin.local', 'ADMINISTER')
  ) permissions (username, permission)
  JOIN guacamole_entity ON permissions.username = guacamole_entity.name AND guacamole_entity.type = 'USER';
  
@@ -43,9 +43,9 @@
 -        ('guacadmin', 'guacadmin', 'READ'),
 -        ('guacadmin', 'guacadmin', 'UPDATE'),
 -        ('guacadmin', 'guacadmin', 'ADMINISTER')
-+        ('guacadmin@guacadmin', 'guacadmin@guacadmin', 'READ'),
-+        ('guacadmin@guacadmin', 'guacadmin@guacadmin', 'UPDATE'),
-+        ('guacadmin@guacadmin', 'guacadmin@guacadmin', 'ADMINISTER')
++        ('guacadmin@guacadmin.local', 'guacadmin@guacadmin.local', 'READ'),
++        ('guacadmin@guacadmin.local', 'guacadmin@guacadmin.local', 'UPDATE'),
++        ('guacadmin@guacadmin.local', 'guacadmin@guacadmin.local', 'ADMINISTER')
  ) permissions (username, affected_username, permission)
  JOIN guacamole_entity          ON permissions.username = guacamole_entity.name AND guacamole_entity.type = 'USER'
  JOIN guacamole_entity affected ON permissions.affected_username = affected.name AND guacamole_entity.type = 'USER'

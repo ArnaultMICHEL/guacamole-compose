@@ -13,7 +13,7 @@ use_kcadm
 
 title "Add Keycloak role for guacamole" "Adding a client role for guacamole ( corresponding to guacamole user's Group)"
 
-authentication4KeycloakAdminCLI "${KEYCLOAK_REALM_NAME}" "${GUACAMOLE_ADMIN_USER}" "${GUACAMOLE_ADMIN_PASSWORD}"
+authentication4KeycloakAdminCLI "${KEYCLOAK_REALM_NAME}" "${GUACAMOLE_ADMIN_USER}" "${GUACAMOLE_ADMIN_TEMP_PASSWORD}"
 
 echo "Adding new Guacamole client roles : $1"
 KC_GUACAMOLE_CLIENT_UUID=$(kcadm.sh get clients \

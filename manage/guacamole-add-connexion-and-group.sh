@@ -15,7 +15,7 @@ source $(dirname $0)/../.shared_cli_functions.sh
 # KC_TOKENS=$(curl --silent -X POST "https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}/protocol/openid-connect/token" \
 #   --insecure \
 #   -d "username=${GUACAMOLE_ADMIN_USER}" \
-#   -d "password=${GUACAMOLE_ADMIN_PASSWORD}" \
+#   -d "password=${GUACAMOLE_ADMIN_TEMP_PASSWORD}" \
 #   -d 'grant_type=password' \
 #   -d 'response_type=id_token' \
 #   -d 'scope=openid+email+profile' \

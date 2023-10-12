@@ -4,7 +4,6 @@ source $(dirname $0)/../../.load.env
 
 source $(dirname $0)/../../.shared_cli_functions.sh
 
-GUACAMOLE_ADMIN_PASSWORD=
 # # Configure truststore for TLS server authentication
 kcadm.sh config truststore --trustpass ${KC_TLS_TRUSTSTORE_PWD} ${KC_TLS_TRUSTSTORE}
 
@@ -17,7 +16,7 @@ authentication4KeycloakAdminCLI master "${KEYCLOAK_ADMIN_USER}" "${KEYCLOAK_ADMI
 #   --user ${KEYCLOAK_ADMIN_USER} --password ${KEYCLOAK_ADMIN_PASSWORD}
 
 ## Find the existing guacadmin user in keycloak
-KC_GUACAMOLE_ADMIN_UUID=$(kcadm.sh get users -r ${KEYCLOAK_REALM_NAME} -q username=guacadmin@guacadmin |jq -r '.[].id')
+KC_GUACAMOLE_ADMIN_UUID=$(kcadm.sh get users -r ${KEYCLOAK_REALM_NAME} -q username=${GUACAMOLE_ADMIN_USER} |jq -r '.[].id')
 echo " Keycloak's Guacamole account UUID  : ${KC_GUACAMOLE_ADMIN_UUID}"
 
 ## Delete account if it exists
@@ -28,28 +27,29 @@ fi
 
 #### Add the guacadmin user to keycloak with an email
 kcadm.sh create users \
-  -s username=guacadmin@guacadmin \
+  -s username=${GUACAMOLE_ADMIN_USER} \
   -s enabled=true \
-  -s email=guacadmin@guacadmin \
+  -s email=guacadmin@guacadmin.local \
   -s emailVerified=true \
   -r ${KEYCLOAK_REALM_NAME}
 
 # Set the password to default, must be changed on first login
 kcadm.sh set-password \
-  --username guacadmin@guacadmin \
-  --new-password guacAdmin@guacAdmin \
+  --username ${GUACAMOLE_ADMIN_USER} \
+  --new-password ${GUACAMOLE_ADMIN_TEMP_PASSWORD} \
   --temporary \
   -r ${KEYCLOAK_REALM_NAME}
 
-# Make guacadmin an admin of the realm
+# Grant guacadmin as an admin of the dedicated realm
 kcadm.sh add-roles \
-  --uusername guacadmin@guacadmin \
+  --username ${GUACAMOLE_ADMIN_USER} \
   --cclientid realm-management \
   --rolename realm-admin \
   -r ${KEYCLOAK_REALM_NAME}
-  
+
+# Grant guacadmin as an admin of guacamole webapp
 kcadm.sh add-roles \
-  --uusername guacadmin@guacadmin \
+  --username ${GUACAMOLE_ADMIN_USER} \
   --cclientid guacamole \
   --rolename Guacamole-Admins \
   -r ${KEYCLOAK_REALM_NAME}
