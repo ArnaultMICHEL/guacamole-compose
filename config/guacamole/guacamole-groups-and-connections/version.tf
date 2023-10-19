@@ -14,8 +14,6 @@ terraform {
 }
 
 provider "guacamole" {
- # url         = "https://guacamole.example.com"
-  #token       = "8675309"
   data_source = "postgresql"
   disable_tls_verification = true
 }

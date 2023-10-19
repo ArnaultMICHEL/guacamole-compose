@@ -53,9 +53,13 @@ You have 3 options, choose one of them :
      - `init/keycloak.key`
    - (re)execute `./setup.sh`
 
-## (Optional) Adding CA for TLS X.509 client authentication
+## (Optional for MFA with X.509 client certificate) Add your private CA
 
-Add your own CA that issue end user authentication certificates to `myCompanyCA.pem` file, in PEM format (base64 encoded).
+With mutual TLS, the TLS server on keycloak need to trust the private CA's that issued X.509 client certificates for authentication.
+
+For that, you need to add your private CA(s) that issue end user authentication certificates to `trustedCAs` folder, in PEM format (base64 encoded).
+
+You can setup a small PKI using this [documentation](./mini-pki/readme.md).   
 
 ## DNS records
 
@@ -200,12 +204,14 @@ I bring it one step forward with the following improvements :
  - [x] add CLI scripts to manage keycloak users and roles
  - [x] configure guacamole admin user
  - [x] manage guacamole groups and connections with terraform
- - [~] add CLI scripts to manage manage guacamole groups and connections
+ - [x] add CLI scripts to manage manage guacamole groups and connections
    - ask for a token after a manual authentication, then call rest API's with curl 
  - [x] move guacamole service base URI : `/guacamole` -> `/`
  - [x] manage default guacamole admin user with environment variables
+ - [x] manage multiple trusted CAs for X.509 MFA
+ - [x] propose a small PKI with easy-rsa that can issue a root CA and user certificates
  - [ ] manage automatic TLS server certificate renewal with acme.sh
- - [ ] provide another terraform subproject for adding guacamole client to an existing Keycloak REALM
+ - [ ] provide another terraform subproject for adding guacamole client to an existing Keycloak instance and REALM
  - [ ] multitenancy : Define project Managers that can manage their own pool of connections and users group
    - waiting for version 1.5.4 to fix [GUACAMOLE-1856](https://issues.apache.org/jira/browse/GUACAMOLE-1856) : creation of user groups fail with 1.5.3 if you don't have permission to creater users
 

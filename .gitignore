@@ -4,7 +4,7 @@ init.bak
 openid
 myfile.txt
 tools
-myCompanyCA.pem
+mini-pki/pki
 .env
 config/keycloak/guacamole-realm-config/.terraform*
 config/keycloak/guacamole-realm-config/terraform.tfstate*
