@@ -73,7 +73,7 @@ services:
       # https://${KC_HOSTNAME}:8443/realms/${KEYCLOAK_REALM_NAME}/.well-known/openid-configuration
       # https://guacamole.apache.org/doc/gug/openid-auth.html
       OPENID_AUTHORIZATION_ENDPOINT: https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}/protocol/openid-connect/auth
-      OPENID_JWKS_ENDPOINT: https://keycloak:8443/realms/${KEYCLOAK_REALM_NAME}/protocol/openid-connect/certs
+      OPENID_JWKS_ENDPOINT: https://${KC_HOSTNAME}:8443/realms/${KEYCLOAK_REALM_NAME}/protocol/openid-connect/certs
       OPENID_ISSUER: https://${KC_HOSTNAME}/realms/${KEYCLOAK_REALM_NAME}
       OPENID_CLIENT_ID: guacamole
       #OPENID_REDIRECT_URI: https://${GUAC_HOSTNAME}/guacamole/#/settings/sessions

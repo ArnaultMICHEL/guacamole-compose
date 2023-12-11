@@ -76,9 +76,9 @@ keycloak_init() {
 
     #increase timeout and sleep timers if you have a slow connexion
     docker pull docker.io/keycloak/keycloak:${KEYCLOAK_VERSION}
-    timeout 10 docker run --rm --name keycloak-cacerts \
+    timeout 30 docker run --rm --name keycloak-cacerts \
       docker.io/keycloak/keycloak:${KEYCLOAK_VERSION} start &
-    sleep 2
+    sleep 15
 
     docker cp keycloak-cacerts:/etc/pki/ca-trust/extracted/java/cacerts init/cacerts
     chmod +w init/cacerts
