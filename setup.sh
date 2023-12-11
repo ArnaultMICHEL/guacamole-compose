@@ -139,7 +139,7 @@ tls_init() {
     cp init/x509/${KC_HOSTNAME}_ecc/${KC_HOSTNAME}.cer init/keycloak.crt
     sudo cp init/x509/${GUAC_HOSTNAME}_ecc/${GUAC_HOSTNAME}.key init/guacamole.key
     sudo cp init/x509/${KC_HOSTNAME}_ecc/${KC_HOSTNAME}.key init/keycloak.key
-    chmod a+r init/guacamole.key init/keycloak.key
+    sudo chmod a+r init/guacamole.key init/keycloak.key
     
     echo -e "\n Adding  CA for Keycloak client kcadm.sh"
     keytool -importcert \
