@@ -177,7 +177,7 @@ tls_init() {
     }
 
     #TODO : better fix for unix rights
-    chmod a+r init/guacamole.key init/keycloak.key
+    sudo chmod a+r init/guacamole.key init/keycloak.key
 
     #adding self signed certificates to truststore
     chmod u+w init/cacerts
