@@ -15,7 +15,5 @@ source $(dirname $0)/../../.shared_cli_functions.sh
 export GUACAMOLE_TOKEN
 #TODO : check token with a sample curl call on APIs
 
-cd guacamole-groups-and-connections
-
-terraform init
-terraform apply
+terraform -chdir=$(dirname $0)/guacamole-groups-and-connections init
+terraform -chdir=$(dirname $0)/guacamole-groups-and-connections apply
