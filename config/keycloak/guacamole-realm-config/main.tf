@@ -133,6 +133,51 @@ resource "keycloak_realm" "guacamole" {
 
 }
 
+# Keycloak logging
+resource "keycloak_realm_events" "realm_events" {
+  realm_id = keycloak_realm.guacamole.id
+
+  events_enabled    = true
+  # in sec : 14Days
+  events_expiration = 1209600
+
+  admin_events_enabled         = true
+  admin_events_details_enabled = true
+
+  # When omitted or left empty, keycloak will enable all event types
+  enabled_event_types = [
+    "LOGIN",
+    "LOGIN_ERROR",
+    "LOGOUT",
+    "LOGOUT_ERROR",
+    "UPDATE_TOTP",
+    "UPDATE_TOTP_ERROR",
+    "REMOVE_TOTP",
+    "REMOVE_TOTP_ERROR",
+    "RESET_PASSWORD",
+    "RESET_PASSWORD_ERROR",
+    "CUSTOM_REQUIRED_ACTION",
+    "CUSTOM_REQUIRED_ACTION_ERROR",
+    "EXECUTE_ACTIONS",
+    "EXECUTE_ACTIONS_ERROR",
+  ]
+
+  events_listeners = [
+    "jboss-logging", # keycloak enables the 'jboss-logging' event listener by default.
+  ]
+}
+
+####################################
+##   Users MUST configure TOTP    ##
+####################################
+resource "keycloak_required_action" "custom-configured_totp" {
+  realm_id       = keycloak_realm.guacamole.id
+  alias          = "CONFIGURE_TOTP"
+  default_action = true
+  enabled        = true
+  name           = "Configure TOTP by default"
+  #priority       = keycloak_required_action.custom-terms-and-conditions.priority + 15
+}
 
 ####################################
 ##  client for Guacamole webapps  ##
@@ -145,7 +190,7 @@ resource "keycloak_openid_client" "guacamole_openid_client" {
 
   name                   = "guacamole"
   enabled                = true
-  description            = "Guacamole webapp"
+  description            = "Guacamole VDI service"
 
   access_type            = "PUBLIC"
 
@@ -156,6 +201,8 @@ resource "keycloak_openid_client" "guacamole_openid_client" {
   frontchannel_logout_enabled  = false
   #frontchannel_logout_url     =
 
+# token
+  access_token_lifespan = "300"
 
   valid_redirect_uris = [
     var.guacamole_openid_callback
@@ -167,8 +214,14 @@ resource "keycloak_openid_client" "guacamole_openid_client" {
   root_url = var.guacamole_root_url
 
   login_theme = "keycloak"
-  
-  depends_on = [ keycloak_realm.guacamole ]
+
+  authentication_flow_binding_overrides {
+    
+    #Activate MFA Auth flow, with rollback
+    browser_id = keycloak_authentication_flow.browser_x509_flow.id
+    #direct_grant_id = 
+  }
+  depends_on = [ keycloak_realm.guacamole, keycloak_authentication_flow.browser_x509_flow ]
 }
 
 #########################################
@@ -257,7 +310,7 @@ resource "keycloak_authentication_execution" "browser_x509" {
   realm_id          = var.keycloak_realm
   parent_flow_alias = keycloak_authentication_flow.browser_x509_flow.alias
   authenticator     = "auth-x509-client-username-form"
-  requirement       = "REQUIRED"
+  requirement       = "ALTERNATIVE"
   depends_on        = [ keycloak_authentication_execution.browser_copy_default_idp ]
 }
 
@@ -278,13 +331,30 @@ resource "keycloak_authentication_execution_config" "mfa_config" {
   }
 }
 
+resource "keycloak_authentication_subflow" "browser_conditional_pwd_form" {
+  realm_id          = var.keycloak_realm
+  alias             = "Conditional-Username-Password"
+  description       = "Username/password/otp if certificate not found"
+  provider_id       = "basic-flow"
+  parent_flow_alias = keycloak_authentication_flow.browser_x509_flow.alias
+  requirement       = "ALTERNATIVE"
+  depends_on        = [ keycloak_authentication_execution.browser_x509 ]
+}
+
+resource "keycloak_authentication_execution" "login_pwd_form" {
+  realm_id          = var.keycloak_realm
+  parent_flow_alias = keycloak_authentication_subflow.browser_conditional_pwd_form.alias
+  authenticator     = "auth-username-password-form"
+  requirement       = "REQUIRED"
+}
+
 resource "keycloak_authentication_subflow" "browser_conditional_otp" {
   realm_id          = var.keycloak_realm
-  alias             = "Conditional_OTP"
-  parent_flow_alias = keycloak_authentication_flow.browser_x509_flow.alias
-  authenticator     = "auth-x509-client-username-form"
+  alias             = "Conditional-OTP"
+  description       = "Username password if certificate not found"
+  parent_flow_alias = keycloak_authentication_subflow.browser_conditional_pwd_form.alias
   requirement       = "CONDITIONAL"
-  depends_on        = [ keycloak_authentication_execution.browser_x509 ]
+  depends_on        = [ keycloak_authentication_execution.login_pwd_form ]
 }
 
 resource "keycloak_authentication_execution" "otp_user_configured" {
