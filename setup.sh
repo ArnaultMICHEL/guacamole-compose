@@ -6,6 +6,7 @@ source .load.env
 ############
 
 check_tools() {
+
   echo "checking for patch"
   [[ -x "$(command -v patch)" ]] || { echo " patch not found => installing it"; sudo dnf install patch -y; }
 
@@ -31,17 +32,31 @@ check_tools() {
 guacamole_init() {
 
   # create directories
-  mkdir -p {data/guacamole,data/keycloak,init,openid,tools} 
+  mkdir -p {data/guacamole,data/keycloak,init,tools} 
 
-  [[ ! -e openid/guacamole-auth-sso-openid-${GUACAMOLE_VERSION}.jar ]] && {
-    cd openid
-    echo -e "\n Downloading Guacamole OpenID auth plugin"
-    wget --quiet https://dlcdn.apache.org/guacamole/${GUACAMOLE_VERSION}/binary/guacamole-auth-sso-${GUACAMOLE_VERSION}.tar.gz
-    tar xvzf guacamole-auth-sso-${GUACAMOLE_VERSION}.tar.gz
-    mv guacamole-auth-sso-${GUACAMOLE_VERSION}/openid/* .
-    rm guacamole-auth-sso-${GUACAMOLE_VERSION}.tar.gz guacamole-auth-sso-${GUACAMOLE_VERSION} -rf
-    cd ..
-  }
+  # all extensions are embedded in the docker image
+  # # add openid plugin
+  # [[ ! -e extensions/guacamole-auth-sso-openid-${GUACAMOLE_VERSION}.jar ]] && {
+  #   cd extensions
+  #   echo -e "\n Downloading Guacamole OpenID auth plugin"
+  #   wget --quiet https://dlcdn.apache.org/guacamole/${GUACAMOLE_VERSION}/binary/guacamole-auth-sso-${GUACAMOLE_VERSION}.tar.gz
+  #   tar xvzf guacamole-auth-sso-${GUACAMOLE_VERSION}.tar.gz
+  #   mv guacamole-auth-sso-${GUACAMOLE_VERSION}/openid/* .
+  #   rm -rf guacamole-auth-sso-${GUACAMOLE_VERSION}.tar.gz guacamole-auth-sso-${GUACAMOLE_VERSION}
+  #   cd ..
+  # }
+
+  # #add recording storage extension
+  # # add openid plugin
+  # [[ ! -e extensions/guacamole-history-recording-storage-${GUACAMOLE_VERSION}.jar ]] && {
+  #   cd extensions
+  #   echo -e "\n Downloading Guacamole recording storage extension"
+  #   wget --quiet https://dlcdn.apache.org/guacamole/${GUACAMOLE_VERSION}/binary/guacamole-history-recording-storage-${GUACAMOLE_VERSION}.tar.gz
+  #   tar xvzf guacamole-history-recording-storage-${GUACAMOLE_VERSION}.tar.gz
+  #   mv guacamole-history-recording-storage-${GUACAMOLE_VERSION}/*.jar .
+  #   rm -rf guacamole-history-recording-storage-${GUACAMOLE_VERSION}.tar.gz guacamole-history-recording-storage-${GUACAMOLE_VERSION} 
+  #   cd ..
+  # }
 
   echo -e "\n Generating guacamole SQL DB init script"
   # create the database initialization script for the guacamole database
@@ -212,9 +227,11 @@ ha_proxy_conf() {
 }
 
 guacd_volumes_rights() {
+
   [[ ! -d record ]] && mkdir record
   [[ ! -d drive ]] && mkdir drive
   sudo chown 1000 record
+  sudo chmod 2750 record
   sudo chown 1000 drive
 }
 # Main

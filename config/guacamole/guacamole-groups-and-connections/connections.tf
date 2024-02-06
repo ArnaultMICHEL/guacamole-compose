@@ -1,3 +1,4 @@
+# doc : https://registry.terraform.io/providers/techBeck03/guacamole/latest/docs/resources/connection_ssh
 resource "guacamole_connection_ssh" "prj1_vm1_ssh" {
   name = "Test SSH Connection"
   parent_identifier = guacamole_connection_group.group_prj_1.identifier
@@ -17,6 +18,10 @@ resource "guacamole_connection_ssh" "prj1_vm1_ssh" {
     terminal_type = "xterm-25color"
     sftp_enable = true
     sftp_root_directory = "/home/user"
+    # Text Session Recording, use scriptreplay file.timing file
+    typescript_path = "${HISTORY_PATH}/${HISTORY_UUID}"
+    typescript_name = "${GUAC_DATE}_${GUAC_TIME}_${GUAC_USERNAME}_${GUAC_CLIENT_ADDRESS}_ssh"
+    typescript_auto_create_path = true
   }
 }
 
@@ -50,6 +55,13 @@ resource "guacamole_connection_rdp" "prj1_vm1_rdp" {
     enable_drive = false
     disable_file_download = false
     disable_file_upload = false
+    #session recording
+    recording_path = "${HISTORY_PATH}/${HISTORY_UUID}"
+    recording_name = "${GUAC_DATE}_${GUAC_TIME}_${GUAC_USERNAME}_${GUAC_CLIENT_ADDRESS}_rdp"
+    recording_exclude_output = false    # exclude graphics/streams
+    recording_exclude_mouse  = false    # exclude mouse
+    recording_include_keys   = false    # include key events
+    recording_auto_create_path = true
     #SFTP - file dwl/upload
     sftp_enable = true
     sftp_root_directory = "/home/user"

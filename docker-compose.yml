@@ -54,7 +54,7 @@ services:
           - ${GUAC_HOSTNAME}
       haproxy_net:
     volumes:
-      - ./openid/guacamole-auth-openid-${GUACAMOLE_VERSION}.jar:/opt/guacamole/openid/guacamole-auth-openid-${GUACAMOLE_VERSION}.jar:ro
+      - ./record:/opt/guacamole/record:ro
       - ./init/guacamole.crt:/usr/local/tomcat/conf/guacamole.crt:ro
       - ./init/guacamole.key:/usr/local/tomcat/conf/guacamole.key:ro
       - ./init/server.xml:/usr/local/tomcat/conf/server.xml:ro
@@ -69,6 +69,7 @@ services:
       GUACD_HOSTNAME: guacd
       GUACD_PORT_4822_TCP_ADDR: guacd
       GUACD_PORT_4822_TCP_PORT: 4822
+      RECORDING_SEARCH_PATH: /opt/guacamole/record
       GUACAMOLE_HOSTNAME: https://guacamole:8443/#
       # https://${KC_HOSTNAME}:8443/realms/${KEYCLOAK_REALM_NAME}/.well-known/openid-configuration
       # https://guacamole.apache.org/doc/gug/openid-auth.html
