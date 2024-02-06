@@ -24,6 +24,8 @@ check_tools() {
   echo "checking for keytool"
   [[ -x "$(command -v keytool)" ]] || { echo " keytool not found => installing openjdk"; sudo dnf install java-17-openjdk.x86_64 -y; }
 
+  echo "checking for scriptreplay (replay recorded ssh sessions)"
+  [[ -x "$(command -v scriptreplay)" ]] || { echo " scriptreplay not found => installing util-linux package"; sudo dnf install util-linux.x86_64 -y; }
 }
 
 guacamole_init() {
@@ -209,6 +211,12 @@ ha_proxy_conf() {
       
 }
 
+guacd_volumes_rights() {
+  [[ ! -d record ]] && mkdir record
+  [[ ! -d drive ]] && mkdir drive
+  sudo chown 1000 record
+  sudo chown 1000 drive
+}
 # Main
 
 check_tools
@@ -220,3 +228,5 @@ keycloak_init
 tls_init
 
 ha_proxy_conf
+
+guacd_volumes_rights
